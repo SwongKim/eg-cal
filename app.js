@@ -1044,10 +1044,12 @@ function ResultsPanel({ result, tableWarn, emptyMsg, logX, setLogX, logY, setLog
             <h5 style={{ margin: 0, fontSize: 15 }}>신뢰구간 <span style={{ fontSize: 11, color: "rgba(233,233,237,.4)", fontWeight: 400 }}>Confidence interval (95%)</span></h5>
             <div style={{ marginLeft: "auto" }}><CopyButton label="표 복사" onClick={(done) => copy(tsv(ciT), htmlTable(ciT), done)} /></div>
           </div>
-          <table className="table" style={{ fontSize: 13 }}>
-            <thead><tr><th>항목</th><th>추정값</th><th>표준오차</th><th>95% 하한</th><th>95% 상한</th></tr></thead>
-            <tbody>{ciRows.map((c, i) => <tr key={i}><td>{c.name}</td><td style={{ fontVariantNumeric: "tabular-nums" }}>{c.est}</td><td style={{ fontVariantNumeric: "tabular-nums" }}>{c.se}</td><td style={{ fontVariantNumeric: "tabular-nums" }}>{c.lo}</td><td style={{ fontVariantNumeric: "tabular-nums" }}>{c.hi}</td></tr>)}</tbody>
-          </table>
+          <div style={{ overflowX: "auto" }}>
+            <table className="table" style={{ fontSize: 13, minWidth: 420 }}>
+              <thead><tr><th>항목</th><th>추정값</th><th>표준오차</th><th>95% 하한</th><th>95% 상한</th></tr></thead>
+              <tbody>{ciRows.map((c, i) => <tr key={i}><td>{c.name}</td><td style={{ fontVariantNumeric: "tabular-nums" }}>{c.est}</td><td style={{ fontVariantNumeric: "tabular-nums" }}>{c.se}</td><td style={{ fontVariantNumeric: "tabular-nums" }}>{c.lo}</td><td style={{ fontVariantNumeric: "tabular-nums" }}>{c.hi}</td></tr>)}</tbody>
+            </table>
+          </div>
         </div>
 
         <div style={{ flex: "1 1 340px", minWidth: 300, background: "#232532", borderRadius: 14, padding: "clamp(13px,2vw,18px)", boxShadow: "0 0 0 1px #3f424d" }}>
@@ -1055,10 +1057,12 @@ function ResultsPanel({ result, tableWarn, emptyMsg, logX, setLogX, logY, setLog
             <h5 style={{ margin: 0, fontSize: 15 }}>회귀 분산분석표 <span style={{ fontSize: 11, color: "rgba(233,233,237,.4)", fontWeight: 400 }}>ANOVA</span></h5>
             <div style={{ marginLeft: "auto" }}><CopyButton label="표 복사" onClick={(done) => copy(tsv(anT), htmlTable(anT), done)} /></div>
           </div>
-          <table className="table" style={{ fontSize: 13 }}>
-            <thead><tr><th>요인</th><th>df</th><th>SS</th><th>MS</th><th>F</th><th>p</th></tr></thead>
-            <tbody>{anovaRows.map((a, i) => <tr key={i}><td>{a.src}</td><td style={{ fontVariantNumeric: "tabular-nums" }}>{a.df}</td><td style={{ fontVariantNumeric: "tabular-nums" }}>{a.ss}</td><td style={{ fontVariantNumeric: "tabular-nums" }}>{a.ms}</td><td style={{ fontVariantNumeric: "tabular-nums" }}>{a.f}</td><td style={{ fontVariantNumeric: "tabular-nums" }}>{a.p}</td></tr>)}</tbody>
-          </table>
+          <div style={{ overflowX: "auto" }}>
+            <table className="table" style={{ fontSize: 13, minWidth: 420 }}>
+              <thead><tr><th>요인</th><th>df</th><th>SS</th><th>MS</th><th>F</th><th>p</th></tr></thead>
+              <tbody>{anovaRows.map((a, i) => <tr key={i}><td>{a.src}</td><td style={{ fontVariantNumeric: "tabular-nums" }}>{a.df}</td><td style={{ fontVariantNumeric: "tabular-nums" }}>{a.ss}</td><td style={{ fontVariantNumeric: "tabular-nums" }}>{a.ms}</td><td style={{ fontVariantNumeric: "tabular-nums" }}>{a.f}</td><td style={{ fontVariantNumeric: "tabular-nums" }}>{a.p}</td></tr>)}</tbody>
+            </table>
+          </div>
         </div>
       </div>
 
@@ -1067,19 +1071,21 @@ function ResultsPanel({ result, tableWarn, emptyMsg, logX, setLogX, logY, setLog
           <h5 style={{ margin: 0, fontSize: 15 }}>진단 · 검정 <span style={{ fontSize: 11, color: "rgba(233,233,237,.4)", fontWeight: 400 }}>Diagnostics &amp; tests</span></h5>
           <div style={{ marginLeft: "auto" }}><CopyButton label="표 복사" onClick={(done) => copy(tsv(tsT), htmlTable(tsT), done)} /></div>
         </div>
-        <table className="table" style={{ fontSize: 13 }}>
-          <thead><tr><th>검정</th><th>통계량</th><th>p</th><th>판정</th></tr></thead>
-          <tbody>
-            {testRows.map((t, i) => (
-              <tr key={i}>
-                <td><span style={{ display: "block" }}>{t.name}</span><span style={{ fontSize: 10.5, color: "rgba(233,233,237,.35)" }}>{t.en}</span></td>
-                <td style={{ fontVariantNumeric: "tabular-nums" }}>{t.stat}</td>
-                <td style={{ fontVariantNumeric: "tabular-nums" }}>{t.p}</td>
-                <td><span className="tag" style={{ fontSize: 10.5, background: t.vbg, color: t.vfg }}>{t.verdict}</span></td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+        <div style={{ overflowX: "auto" }}>
+          <table className="table" style={{ fontSize: 13, minWidth: 520 }}>
+            <thead><tr><th>검정</th><th>통계량</th><th>p</th><th>판정</th></tr></thead>
+            <tbody>
+              {testRows.map((t, i) => (
+                <tr key={i}>
+                  <td><span style={{ display: "block" }}>{t.name}</span><span style={{ fontSize: 10.5, color: "rgba(233,233,237,.35)" }}>{t.en}</span></td>
+                  <td style={{ fontVariantNumeric: "tabular-nums" }}>{t.stat}</td>
+                  <td style={{ fontVariantNumeric: "tabular-nums" }}>{t.p}</td>
+                  <td><span className="tag" style={{ fontSize: 10.5, background: t.vbg, color: t.vfg }}>{t.verdict}</span></td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       </div>
 
       <div style={{ display: "flex", flexWrap: "wrap", gap: 16 }}>
