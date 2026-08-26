@@ -562,6 +562,7 @@ function LandingScreen({ navigate }) {
             </div>
           ))}
         </div>
+        <Footer />
       </div>
     </div>
   );
