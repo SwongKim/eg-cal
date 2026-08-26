@@ -681,11 +681,11 @@ function AuthScreen({ mode, navigate }) {
         </div>
 
         <div style={{ height: 1, margin: "26px 0 18px", background: "linear-gradient(to right,transparent,rgba(233,233,237,.14) 40px,rgba(233,233,237,.14) calc(100% - 40px),transparent)" }} />
-        <div style={{ display: "flex", flexWrap: "wrap", gap: "6px 18px", fontSize: 12.5, color: "rgba(233,233,237,.5)" }}>
+        <div style={{ display: "flex", flexWrap: "wrap", justifyContent: "center", gap: "6px 10px", fontSize: 12, color: "rgba(233,233,237,.5)" }}>
           {links.map((l, i) => (
             <span key={i} style={{ display: "flex", gap: 6, alignItems: "baseline" }}>
               {l.pre}
-              <button className="btn btn-ghost" onClick={() => navigate(l.to)} style={{ fontSize: 12.5, padding: 0 }}>{l.label}</button>
+              <button className="btn btn-ghost" onClick={() => navigate(l.to)} style={{ fontSize: 12, padding: 0, color: l.to === "/reset-password" ? "#e9e9ed" : undefined }}>{l.label}</button>
             </span>
           ))}
         </div>
@@ -694,6 +694,7 @@ function AuthScreen({ mode, navigate }) {
             ⚠ firebase-config.js 에 Firebase 프로젝트 설정을 입력해야 로그인이 동작합니다.
           </p>
         )}
+        <Footer />
       </div>
     </div>
   );
@@ -709,6 +710,9 @@ function Logo() {
     <circle cx="6.5" cy="16" r="1.6" fill="#84d9d3" stroke="none" />
     <circle cx="15.5" cy="8" r="1.6" fill="#84d9d3" stroke="none" />
   </svg>;
+}
+function Footer() {
+  return <p style={{ marginTop: 28, fontSize: 11.5, color: "#e9e9ed", textAlign: "center" }}>2026 Soosung Kim. All rights reserved.</p>;
 }
 
 /* ============================================================
@@ -1312,6 +1316,7 @@ function AppScreen({ userEmail, userId, onLogout }) {
             </section>
           </>
         )}
+        <Footer />
       </div>
     </div>
   );
