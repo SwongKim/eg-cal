@@ -531,7 +531,44 @@ function useAuth() {
 }
 
 /* ============================================================
-   10. 로그인 / 회원가입 / 비밀번호 재설정 화면
+   10. 랜딩 페이지 (/)
+   ============================================================ */
+function LandingScreen({ navigate }) {
+  const features = [
+    { k: "공학용 계산기", v: "삼각함수 · 로그/지수 · 거듭제곱 · 메모리 등 표준 공학 연산을 마우스와 키보드로." },
+    { k: "회귀분석 · 통계", v: "검량선 데이터를 입력하면 회귀식, LOD/LOQ, 신뢰구간, ANOVA, 그래프까지 한 번에 산출." },
+    { k: "결과 기록 저장", v: "산출한 결과를 계정별로 저장해두고 필요할 때 다시 열람." },
+  ];
+  return (
+    <div style={{ minHeight: "100vh", display: "flex", flexDirection: "column", justifyContent: "center", padding: "48px 28px", animation: "noct-in .28s ease" }}>
+      <div style={{ width: "100%", maxWidth: 640, margin: "0 auto" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 9, marginBottom: 34 }}>
+          <Logo />
+          <span style={{ fontSize: 15, fontWeight: 500, letterSpacing: "-.01em" }}>Eg-Cal : 공학용 연산 도우미</span>
+        </div>
+        <h1 style={{ fontSize: "clamp(28px,4vw,42px)", margin: "0 0 14px", maxWidth: "18ch" }}>계산과 통계 분석을 한 화면에서.</h1>
+        <p style={{ fontSize: 14.5, color: "rgba(233,233,237,.6)", margin: "0 0 30px", maxWidth: "50ch", lineHeight: 1.6 }}>
+          검량선 데이터를 입력하고 확인만 누르면 회귀식과 통계량, 그래프까지 바로 산출됩니다. 계산기와 분석 도구를 오가는 번거로움 없이 한 페이지에서 처리하세요.
+        </p>
+        <div style={{ display: "flex", gap: 10, flexWrap: "wrap", marginBottom: 44 }}>
+          <button className="btn btn-primary" onClick={() => navigate("/login")} style={{ minHeight: 42, padding: "0 22px", fontSize: 14.5 }}>로그인</button>
+          <button className="btn btn-secondary" onClick={() => navigate("/signup")} style={{ minHeight: 42, padding: "0 22px", fontSize: 14.5 }}>회원가입</button>
+        </div>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(160px,1fr))", gap: 14 }}>
+          {features.map((f, i) => (
+            <div key={i} style={{ background: "#232532", borderRadius: 14, padding: "16px 17px", boxShadow: "0 0 0 1px #3f424d" }}>
+              <div style={{ fontSize: 13.5, fontWeight: 500, marginBottom: 6 }}>{f.k}</div>
+              <div style={{ fontSize: 12, color: "rgba(233,233,237,.55)", lineHeight: 1.55 }}>{f.v}</div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ============================================================
+   11. 로그인 / 회원가입 / 비밀번호 재설정 화면
    ============================================================ */
 function AuthScreen({ mode, navigate }) {
   const [email, setEmail] = useState("");
@@ -675,7 +712,7 @@ function Logo() {
 }
 
 /* ============================================================
-   11. 계산기
+   12. 계산기
    ============================================================ */
 function Calculator() {
   const [expr, setExpr] = useState("");
@@ -780,7 +817,7 @@ function Calculator() {
 }
 
 /* ============================================================
-   12. 데이터 입력 테이블
+   13. 데이터 입력 테이블
    ============================================================ */
 function DataTable({ rows, setRows, tableWarn, onCompute }) {
   const inputRefs = useRef(new Map());
@@ -871,7 +908,7 @@ function DataTable({ rows, setRows, tableWarn, onCompute }) {
 }
 
 /* ============================================================
-   13. 결과 패널 (수치 · 표 · 차트 · 복사)
+   14. 결과 패널 (수치 · 표 · 차트 · 복사)
    ============================================================ */
 function CopyButton({ label, onClick }) {
   const [copied, setCopied] = useState(false);
@@ -1147,7 +1184,7 @@ function ResultsPanel({ result, tableWarn, emptyMsg, logX, setLogX, logY, setLog
 }
 
 /* ============================================================
-   14. 기록 열람 화면
+   15. 기록 열람 화면
    ============================================================ */
 function formatHistoryLabel(createdAt) {
   let d;
@@ -1190,7 +1227,7 @@ function HistoryScreen({ history, onSelect }) {
 }
 
 /* ============================================================
-   15. 메인 도구 페이지 (/app)
+   16. 메인 도구 페이지 (/app)
    ============================================================ */
 function AppScreen({ userEmail, userId, onLogout }) {
   const [view, setView] = useState("main"); // main | history
@@ -1275,7 +1312,7 @@ function AppScreen({ userEmail, userId, onLogout }) {
 }
 
 /* ============================================================
-   16. 404
+   17. 404
    ============================================================ */
 function NotFoundScreen({ loggedIn, navigate }) {
   return (
@@ -1294,7 +1331,7 @@ function NotFoundScreen({ loggedIn, navigate }) {
 }
 
 /* ============================================================
-   17. 앱 루트 — 라우팅 + 인증 가드 (Sitemap.md 라우팅 표 참고)
+   18. 앱 루트 — 라우팅 + 인증 가드 (Sitemap.md 라우팅 표 참고)
    ============================================================ */
 function App() {
   const { path, navigate } = useRouter();
@@ -1302,7 +1339,7 @@ function App() {
 
   useEffect(() => {
     if (authLoading) return;
-    if (path === "/") { navigate(user ? "/app" : "/login"); return; }
+    if (path === "/" && user) { navigate("/app"); return; }
     if (path === "/app" && !user) { navigate("/login"); return; }
     if ((path === "/login" || path === "/signup" || path === "/reset-password") && user) { navigate("/app"); return; }
   }, [path, user, authLoading, navigate]);
@@ -1311,6 +1348,10 @@ function App() {
     return <div style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", color: "rgba(233,233,237,.5)", fontSize: 13 }}>불러오는 중…</div>;
   }
 
+  if (path === "/") {
+    if (user) return null; // /app 으로 리다이렉트 중
+    return <LandingScreen navigate={navigate} />;
+  }
   if (path === "/login") return <AuthScreen mode="login" navigate={navigate} />;
   if (path === "/signup") return <AuthScreen mode="signup" navigate={navigate} />;
   if (path === "/reset-password") return <AuthScreen mode="reset" navigate={navigate} />;
@@ -1318,7 +1359,6 @@ function App() {
     if (!user) return null;
     return <AppScreen userEmail={user.email} userId={user.uid} onLogout={() => window.EgCalAuth.logout()} />;
   }
-  if (path === "/") return null;
   return <NotFoundScreen loggedIn={!!user} navigate={navigate} />;
 }
 
