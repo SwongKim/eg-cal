@@ -413,18 +413,18 @@ function captionResid(R) {
 function captionBox(R) {
   if (R.lev) {
     return R.lev.p < 0.05
-      ? "Levene 등분산성 검정에서 유의한 결과가 나와(p " + fmtP(R.lev.p) + ") 농도 수준별 분산이 다를 수 있습니다 (이분산). 가중회귀 적용을 고려해 보세요."
-      : "Levene 등분산성 검정 결과 농도 수준 간 분산이 유사합니다 (p " + fmtP(R.lev.p) + ") — 등분산 가정이 유지됩니다.";
+      ? "Levene 등분산성 검정에서 유의한 결과가 나와(p " + fmtP(R.lev.p) + ") 인자 수준별 분산이 다를 수 있습니다 (이분산). 가중회귀 적용을 고려해 보세요."
+      : "Levene 등분산성 검정 결과 인자 수준 간 분산이 유사합니다 (p " + fmtP(R.lev.p) + ") — 등분산 가정이 유지됩니다.";
   }
-  return "각 농도 수준의 반복 측정이 3회 미만이라 등분산성 검정은 생략되었습니다. 상자(사분위범위)의 크기가 농도에 따라 커지는지 육안으로 확인해 보세요.";
+  return "각 인자 수준의 반복 측정이 3회 미만이라 등분산성 검정은 생략되었습니다. 상자(사분위범위)의 크기가 인자에 따라 커지는지 육안으로 확인해 보세요.";
 }
 function captionInd(R) {
   if (!isFinite(R.rsd)) return "수준별 반복 측정이 2회 미만이라 %RSD를 산출할 수 없습니다.";
   const grade = R.rsd < 2 ? "매우 우수한" : R.rsd < 5 ? "우수한" : R.rsd < 10 ? "양호한" : "개선이 필요한";
-  return "수준별 반복 측정값의 평균 %RSD = " + fmt(R.rsd, 2) + "% 로 " + grade + " 반복재현성을 보입니다. 각 농도에서 점들이 평균선(보라색)에 가까이 모여 있을수록 재현성이 좋다는 뜻입니다.";
+  return "수준별 반복 측정값의 평균 %RSD = " + fmt(R.rsd, 2) + "% 로 " + grade + " 반복재현성을 보입니다. 각 인자에서 점들이 평균선(터콰이즈색)에 가까이 모여 있을수록 재현성이 좋다는 뜻입니다.";
 }
 function captionInt(stats) {
-  if (stats.length < 2) return "비교할 농도 수준이 2개 미만입니다.";
+  if (stats.length < 2) return "비교할 인자 수준이 2개 미만입니다.";
   let overlap = 0;
   for (let i = 0; i < stats.length - 1; i++) {
     const a = stats[i], b = stats[i + 1];
@@ -432,8 +432,8 @@ function captionInt(stats) {
     if (Math.max(aLo, bLo) <= Math.min(aHi, bHi)) overlap++;
   }
   return overlap === 0
-    ? "인접한 모든 농도 수준의 95% 신뢰구간이 서로 겹치지 않아, 수준 간 신호 차이가 뚜렷하게 구분됩니다."
-    : "인접한 농도 수준 중 " + overlap + "쌍의 95% 신뢰구간이 겹칩니다 — 해당 수준들은 신호 차이가 통계적으로 뚜렷하지 않을 수 있습니다.";
+    ? "인접한 모든 인자 수준의 95% 신뢰구간이 서로 겹치지 않아, 수준 간 반응 차이가 뚜렷하게 구분됩니다."
+    : "인접한 인자 수준 중 " + overlap + "쌍의 95% 신뢰구간이 겹칩니다 — 해당 수준들은 반응 차이가 통계적으로 뚜렷하지 않을 수 있습니다.";
 }
 
 /* ============================================================
@@ -464,7 +464,7 @@ function exportSvgAsPng(id, name) {
     const c = document.createElement("canvas");
     c.width = 1120; c.height = 640;
     const ctx = c.getContext("2d");
-    ctx.fillStyle = "#232532"; ctx.fillRect(0, 0, c.width, c.height);
+    ctx.fillStyle = "#17233e"; ctx.fillRect(0, 0, c.width, c.height);
     ctx.drawImage(img, 0, 0, c.width, c.height);
     c.toBlob((bl) => {
       const u = URL.createObjectURL(bl);
@@ -556,7 +556,7 @@ function LandingScreen({ navigate }) {
         </div>
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(160px,1fr))", gap: 14 }}>
           {features.map((f, i) => (
-            <div key={i} style={{ background: "#232532", borderRadius: 14, padding: "16px 17px", boxShadow: "0 0 0 1px #3f424d" }}>
+            <div key={i} style={{ background: "#17233e", borderRadius: 14, padding: "16px 17px", boxShadow: "0 0 0 1px #3f424d" }}>
               <div style={{ fontSize: 13.5, fontWeight: 500, marginBottom: 6 }}>{f.k}</div>
               <div style={{ fontSize: 12, color: "rgba(233,233,237,.55)", lineHeight: 1.55 }}>{f.v}</div>
             </div>
@@ -634,7 +634,7 @@ function AuthScreen({ mode, navigate }) {
             <label>이메일</label>
             <input className="input" type="email" value={email} onChange={(e) => setEmail(e.target.value)}
               onKeyDown={(e) => e.key === "Enter" && submit()} placeholder="you@lab.ac.kr"
-              style={{ minHeight: 40, borderColor: err.email ? "#b5abfc" : undefined }} />
+              style={{ minHeight: 40, borderColor: err.email ? "#abfcf7" : undefined }} />
             {err.email && <FieldError text={err.email} />}
           </div>
 
@@ -643,7 +643,7 @@ function AuthScreen({ mode, navigate }) {
               <label>비밀번호</label>
               <input className="input" type="password" value={pw} onChange={(e) => setPw(e.target.value)}
                 onKeyDown={(e) => e.key === "Enter" && submit()} placeholder="8자 이상"
-                style={{ minHeight: 40, borderColor: err.pw ? "#b5abfc" : undefined }} />
+                style={{ minHeight: 40, borderColor: err.pw ? "#abfcf7" : undefined }} />
               {err.pw && <FieldError text={err.pw} />}
             </div>
           )}
@@ -653,18 +653,18 @@ function AuthScreen({ mode, navigate }) {
               <label>비밀번호 확인</label>
               <input className="input" type="password" value={pw2} onChange={(e) => setPw2(e.target.value)}
                 onKeyDown={(e) => e.key === "Enter" && submit()}
-                style={{ minHeight: 40, borderColor: err.pw2 ? "#b5abfc" : undefined }} />
+                style={{ minHeight: 40, borderColor: err.pw2 ? "#abfcf7" : undefined }} />
               {err.pw2 && <FieldError text={err.pw2} />}
             </div>
           )}
 
           {mode === "signup" && (
-            <div style={{ padding: "12px 13px", borderRadius: 8, background: "#1c1e2c", border: "1px solid " + (err.agree ? "#b5abfc" : "rgba(233,233,237,.28)") }}>
+            <div style={{ padding: "12px 13px", borderRadius: 8, background: "#141d34", border: "1px solid " + (err.agree ? "#abfcf7" : "rgba(233,233,237,.28)") }}>
               <label style={{ display: "flex", alignItems: "flex-start", gap: 9, cursor: "pointer" }}>
                 <input type="checkbox" checked={agree} onChange={(e) => { setAgree(e.target.checked); setErr((p) => ({ ...p, agree: undefined })); }}
-                  style={{ width: 16, height: 16, marginTop: 2, flex: "none", accentColor: "#9184d9", cursor: "pointer" }} />
+                  style={{ width: 16, height: 16, marginTop: 2, flex: "none", accentColor: "#84d9d3", cursor: "pointer" }} />
                 <span style={{ fontSize: 12.5, lineHeight: 1.5, color: "rgba(233,233,237,.75)" }}>
-                  개인정보 수집 및 이용 동의 <span style={{ color: "#b5abfc" }}>(필수)</span><br />
+                  개인정보 수집 및 이용 동의 <span style={{ color: "#abfcf7" }}>(필수)</span><br />
                   <span style={{ fontSize: 11.5, color: "rgba(233,233,237,.45)" }}>수집 항목: 이메일 주소 · 이용 목적: 계정 식별 및 서비스 제공 · 보유 기간: 회원 탈퇴 시까지</span>
                 </span>
               </label>
@@ -672,8 +672,8 @@ function AuthScreen({ mode, navigate }) {
             </div>
           )}
 
-          {err.form && <div style={{ padding: "11px 13px", borderRadius: 8, background: "#423a6a", border: "1px solid rgba(181,171,252,.35)", fontSize: 12.5, color: "#f5f4ff" }}>{err.form}</div>}
-          {notice && <div style={{ padding: "11px 13px", borderRadius: 8, background: "#2b2741", border: "1px solid rgba(181,171,252,.35)", fontSize: 12.5, color: "#d2cefd" }}>{notice}</div>}
+          {err.form && <div style={{ padding: "11px 13px", borderRadius: 8, background: "#3a6a67", border: "1px solid rgba(171,252,247,.35)", fontSize: 12.5, color: "#f4fffe" }}>{err.form}</div>}
+          {notice && <div style={{ padding: "11px 13px", borderRadius: 8, background: "#27413f", border: "1px solid rgba(171,252,247,.35)", fontSize: 12.5, color: "#cefdfa" }}>{notice}</div>}
 
           <button className="btn btn-primary btn-block" disabled={busy} onClick={submit} style={{ minHeight: 42, fontSize: 14.5, marginTop: 4 }}>
             {busy ? "처리 중…" : ctas[mode]}
@@ -699,15 +699,15 @@ function AuthScreen({ mode, navigate }) {
   );
 }
 function FieldError({ text }) {
-  return <div style={{ fontSize: 11.5, color: "#d2cefd", marginTop: 5, display: "flex", gap: 5, alignItems: "center" }}>
-    <span style={{ width: 3, height: 11, background: "#b5abfc", borderRadius: 2 }} />{text}
+  return <div style={{ fontSize: 11.5, color: "#cefdfa", marginTop: 5, display: "flex", gap: 5, alignItems: "center" }}>
+    <span style={{ width: 3, height: 11, background: "#abfcf7", borderRadius: 2 }} />{text}
   </div>;
 }
 function Logo() {
-  return <svg width="22" height="22" viewBox="0 0 22 22" fill="none" stroke="#9184d9" strokeWidth="1.6">
+  return <svg width="22" height="22" viewBox="0 0 22 22" fill="none" stroke="#84d9d3" strokeWidth="1.6">
     <path d="M3 18 C7 18 8 4 12 4 C16 4 17 11 19 11" strokeLinecap="round" />
-    <circle cx="6.5" cy="16" r="1.6" fill="#9184d9" stroke="none" />
-    <circle cx="15.5" cy="8" r="1.6" fill="#9184d9" stroke="none" />
+    <circle cx="6.5" cy="16" r="1.6" fill="#84d9d3" stroke="none" />
+    <circle cx="15.5" cy="8" r="1.6" fill="#84d9d3" stroke="none" />
   </svg>;
 }
 
@@ -780,22 +780,22 @@ function Calculator() {
     ["MR", () => memOp("r"), "util", "13px"], ["MC", () => memOp("c"), "util", "13px"],
   ];
   const keyStyle = (kind) => ({
-    borderColor: kind === "op" ? "rgba(145,132,217,.45)" : kind === "util" ? "rgba(233,233,237,.16)" : "transparent",
-    color: kind === "op" ? "#b5abfc" : kind === "util" ? "rgba(233,233,237,.7)" : "#e9e9ed",
+    borderColor: kind === "op" ? "rgba(132,217,211,.45)" : kind === "util" ? "rgba(233,233,237,.16)" : "transparent",
+    color: kind === "op" ? "#abfcf7" : kind === "util" ? "rgba(233,233,237,.7)" : "#e9e9ed",
     background: kind === "num" ? "rgba(233,233,237,.06)" : "transparent",
   });
 
   return (
     <div style={{ display: "flex", flexWrap: "wrap", gap: 14, alignItems: "flex-start" }}>
-      <div style={{ flex: "1 1 300px", minWidth: 280, background: "#232532", borderRadius: 14, padding: 14, boxShadow: "0 0 0 1px #3f424d" }}>
+      <div style={{ flex: "1 1 300px", minWidth: 280, background: "#17233e", borderRadius: 14, padding: 14, boxShadow: "0 0 0 1px #3f424d" }}>
         <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 10 }}>
-          <button className="btn" onClick={() => setDeg((d) => !d)} style={{ fontSize: 11, padding: "3px 9px", borderColor: "#9184d9", color: "#9184d9" }}>{deg ? "DEG" : "RAD"}</button>
+          <button className="btn" onClick={() => setDeg((d) => !d)} style={{ fontSize: 11, padding: "3px 9px", borderColor: "#84d9d3", color: "#84d9d3" }}>{deg ? "DEG" : "RAD"}</button>
           {mem !== 0 && <span className="tag tag-accent" style={{ fontSize: 10 }}>M {trimNum(mem)}</span>}
           <span style={{ marginLeft: "auto", fontSize: 11, color: "rgba(233,233,237,.4)" }}>키보드 입력 가능</span>
         </div>
-        <div style={{ minHeight: 86, padding: "12px 14px", borderRadius: 8, background: "#161826", display: "flex", flexDirection: "column", justifyContent: "flex-end", gap: 4, overflow: "hidden" }}>
+        <div style={{ minHeight: 86, padding: "12px 14px", borderRadius: 8, background: "#11192c", display: "flex", flexDirection: "column", justifyContent: "flex-end", gap: 4, overflow: "hidden" }}>
           <div style={{ fontSize: 13, color: "rgba(233,233,237,.5)", wordBreak: "break-all", textAlign: "right", minHeight: 18, fontVariantNumeric: "tabular-nums" }}>{expr || " "}</div>
-          <div style={{ fontSize: "clamp(26px,4vw,34px)", fontWeight: 500, textAlign: "right", wordBreak: "break-all", fontVariantNumeric: "tabular-nums", color: err ? "#b5abfc" : "#e9e9ed" }}>{out}</div>
+          <div style={{ fontSize: "clamp(26px,4vw,34px)", fontWeight: 500, textAlign: "right", wordBreak: "break-all", fontVariantNumeric: "tabular-nums", color: err ? "#abfcf7" : "#e9e9ed" }}>{out}</div>
         </div>
         <div style={{ display: "grid", gridTemplateColumns: "repeat(4,minmax(0,1fr))", gap: 7, marginTop: 12 }}>
           {numDefs.map((d, i) => <button key={i} className="btn" onClick={d[1]} style={{ minHeight: 46, fontSize: d[3] || "15px", ...keyStyle(d[2]) }}>{d[0]}</button>)}
@@ -803,7 +803,7 @@ function Calculator() {
         <button className="btn btn-primary btn-block" onClick={evaluate} style={{ minHeight: 46, fontSize: 17, marginTop: 7 }}>=</button>
       </div>
 
-      <div style={{ flex: "1 1 260px", minWidth: 250, background: "#232532", borderRadius: 14, padding: 14, boxShadow: "0 0 0 1px #3f424d" }}>
+      <div style={{ flex: "1 1 260px", minWidth: 250, background: "#17233e", borderRadius: 14, padding: 14, boxShadow: "0 0 0 1px #3f424d" }}>
         <div style={{ fontSize: 10, letterSpacing: ".1em", textTransform: "uppercase", color: "rgba(233,233,237,.45)", marginBottom: 10 }}>함수 · 상수 · 메모리</div>
         <div style={{ display: "grid", gridTemplateColumns: "repeat(4,minmax(0,1fr))", gap: 7 }}>
           {funcDefs.map((d, i) => <button key={i} className="btn" onClick={d[1]} style={{ minHeight: 44, fontSize: d[3] || "15px", ...keyStyle(d[2]) }}>{d[0]}</button>)}
@@ -859,7 +859,7 @@ function DataTable({ rows, setRows, tableWarn, onCompute }) {
   }
 
   return (
-    <div style={{ background: "#232532", borderRadius: 14, boxShadow: "0 0 0 1px #3f424d", overflow: "hidden" }}>
+    <div style={{ background: "#17233e", borderRadius: 14, boxShadow: "0 0 0 1px #3f424d", overflow: "hidden" }}>
       <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap", padding: "11px 14px" }}>
         <span style={{ fontSize: 12, color: "rgba(233,233,237,.6)" }}>{rows.length}행 · X, Y 2열</span>
         {tableWarn && <span className="tag tag-accent" style={{ fontSize: 10.5 }}>{tableWarn}</span>}
@@ -877,8 +877,8 @@ function DataTable({ rows, setRows, tableWarn, onCompute }) {
               const badX = r.x.trim() !== "" && !isFinite(parseFloat(r.x));
               const badY = r.y.trim() !== "" && !isFinite(parseFloat(r.y));
               const half = (r.x.trim() === "") !== (r.y.trim() === "");
-              const xb = badX ? "#b5abfc" : half && r.x.trim() === "" ? "rgba(181,171,252,.4)" : "rgba(233,233,237,.16)";
-              const yb = badY ? "#b5abfc" : half && r.y.trim() === "" ? "rgba(181,171,252,.4)" : "rgba(233,233,237,.16)";
+              const xb = badX ? "#abfcf7" : half && r.x.trim() === "" ? "rgba(171,252,247,.4)" : "rgba(233,233,237,.16)";
+              const yb = badY ? "#abfcf7" : half && r.y.trim() === "" ? "rgba(171,252,247,.4)" : "rgba(233,233,237,.16)";
               return (
                 <tr key={i}>
                   <td style={{ color: "rgba(233,233,237,.4)", fontSize: 12, fontVariantNumeric: "tabular-nums" }}>{i + 1}</td>
@@ -928,7 +928,7 @@ function SaveButton({ onSave }) {
 }
 function ChartCard({ title, subtitle, id, onDownload, children, extra, caption }) {
   return (
-    <div style={{ flex: "1 1 380px", minWidth: 300, background: "#232532", borderRadius: 14, padding: "clamp(13px,2vw,18px)", boxShadow: "0 0 0 1px #3f424d" }}>
+    <div style={{ flex: "1 1 380px", minWidth: 300, background: "#17233e", borderRadius: 14, padding: "clamp(13px,2vw,18px)", boxShadow: "0 0 0 1px #3f424d" }}>
       <div style={{ display: "flex", alignItems: "baseline", gap: 8, flexWrap: "wrap", marginBottom: 6 }}>
         <h5 style={{ margin: 0, fontSize: 15 }}>{title} <span style={{ fontSize: 11, color: "rgba(233,233,237,.4)", fontWeight: 400 }}>{subtitle}</span></h5>
         <div style={{ display: "flex", gap: 6, marginLeft: "auto", flexWrap: "wrap" }}>
@@ -937,7 +937,7 @@ function ChartCard({ title, subtitle, id, onDownload, children, extra, caption }
         </div>
       </div>
       <svg id={id} viewBox="0 0 560 320" style={{ width: "100%", height: "auto", display: "block" }}>
-        <rect x="0" y="0" width="560" height="320" fill="#232532" />
+        <rect x="0" y="0" width="560" height="320" fill="#17233e" />
         {children}
       </svg>
       {caption && <p style={{ margin: "10px 0 0", fontSize: 12, lineHeight: 1.55, color: "rgba(233,233,237,.6)" }}>{caption}</p>}
@@ -948,8 +948,8 @@ function ScaleToggle({ on, setOn, disabledHint }) {
   if (disabledHint) return <span style={{ fontSize: 10.5, color: "rgba(233,233,237,.32)", alignSelf: "center" }}>{disabledHint}</span>;
   return (
     <>
-      <button className="btn" onClick={() => setOn(false)} style={{ fontSize: 11.5, padding: "3px 9px", borderColor: !on ? "#9184d9" : "rgba(233,233,237,.16)", color: !on ? "#9184d9" : "rgba(233,233,237,.55)", background: !on ? "rgba(145,132,217,.12)" : "transparent" }}>선형</button>
-      <button className="btn" onClick={() => setOn(true)} style={{ fontSize: 11.5, padding: "3px 9px", borderColor: on ? "#9184d9" : "rgba(233,233,237,.16)", color: on ? "#9184d9" : "rgba(233,233,237,.55)", background: on ? "rgba(145,132,217,.12)" : "transparent" }}>log</button>
+      <button className="btn" onClick={() => setOn(false)} style={{ fontSize: 11.5, padding: "3px 9px", borderColor: !on ? "#84d9d3" : "rgba(233,233,237,.16)", color: !on ? "#84d9d3" : "rgba(233,233,237,.55)", background: !on ? "rgba(132,217,211,.12)" : "transparent" }}>선형</button>
+      <button className="btn" onClick={() => setOn(true)} style={{ fontSize: 11.5, padding: "3px 9px", borderColor: on ? "#84d9d3" : "rgba(233,233,237,.16)", color: on ? "#84d9d3" : "rgba(233,233,237,.55)", background: on ? "rgba(132,217,211,.12)" : "transparent" }}>log</button>
     </>
   );
 }
@@ -958,7 +958,7 @@ function ResultsPanel({ result, tableWarn, emptyMsg, logX, setLogX, logY, setLog
   const charts = useMemo(() => (R ? buildCharts(R, logX && R.logOk, logY) : null), [R, logX, logY]);
 
   if (!R) {
-    return <div style={{ marginTop: 14, padding: "34px 20px", borderRadius: 14, background: "#232532", boxShadow: "0 0 0 1px #3f424d", textAlign: "center" }}>
+    return <div style={{ marginTop: 14, padding: "34px 20px", borderRadius: 14, background: "#17233e", boxShadow: "0 0 0 1px #3f424d", textAlign: "center" }}>
       <div style={{ fontSize: 14, color: "rgba(233,233,237,.6)" }}>{emptyMsg}</div>
     </div>;
   }
@@ -987,24 +987,24 @@ function ResultsPanel({ result, tableWarn, emptyMsg, logX, setLogX, logY, setLog
     { src: "전체 (total)", df: R.n - 1, ss: fmt(R.SST, 4), ms: "—", f: "—", p: "—" },
   ];
   const verdict = (p, okText, badText) => !isFinite(p) ? { verdict: "산출 불가", vbg: "#3f424d", vfg: "#e4e7f5" }
-    : (p >= 0.05 ? { verdict: okText, vbg: "#423a6a", vfg: "#e7e5fe" } : { verdict: badText, vbg: "#5d5294", vfg: "#f5f4ff" });
+    : (p >= 0.05 ? { verdict: okText, vbg: "#3a6a67", vfg: "#e5fefc" } : { verdict: badText, vbg: "#529490", vfg: "#f4fffe" });
   const testRows = [
     { name: "회귀 유의성 검정", en: "F-test of regression", stat: "F = " + fmt(R.F, 3) + " (df 1, " + R.dfRes + ")", p: fmtP(R.pF),
-      vbg: R.pF < 0.05 ? "#423a6a" : "#3f424d", vfg: "#e7e5fe", verdict: R.pF < 0.05 ? "회귀 유의" : "유의하지 않음" },
+      vbg: R.pF < 0.05 ? "#3a6a67" : "#3f424d", vfg: "#e5fefc", verdict: R.pF < 0.05 ? "회귀 유의" : "유의하지 않음" },
     { name: "기울기 검정 (H₀: b = 0)", en: "t-test, slope", stat: "t = " + fmt(R.tB, 3) + " (df " + R.dfRes + ")", p: fmtP(R.pB),
-      vbg: R.pB < 0.05 ? "#423a6a" : "#3f424d", vfg: "#e7e5fe", verdict: R.pB < 0.05 ? "기울기 유의" : "유의하지 않음" },
+      vbg: R.pB < 0.05 ? "#3a6a67" : "#3f424d", vfg: "#e5fefc", verdict: R.pB < 0.05 ? "기울기 유의" : "유의하지 않음" },
     { name: "절편 검정 (H₀: a = 0)", en: "t-test, intercept", stat: "t = " + fmt(R.tA, 3) + " (df " + R.dfRes + ")", p: fmtP(R.pA),
-      vbg: R.pA < 0.05 ? "#5d5294" : "#423a6a", vfg: "#f5f4ff", verdict: R.pA < 0.05 ? "절편 0과 유의하게 다름" : "절편 0과 차이 없음" },
+      vbg: R.pA < 0.05 ? "#529490" : "#3a6a67", vfg: "#f4fffe", verdict: R.pA < 0.05 ? "절편 0과 유의하게 다름" : "절편 0과 차이 없음" },
     { name: "상관계수 검정 (H₀: ρ = 0)", en: "t-test, Pearson r", stat: "t = " + fmt(R.tR, 3) + " (df " + R.dfRes + ")", p: fmtP(R.pR),
-      vbg: R.pR < 0.05 ? "#423a6a" : "#3f424d", vfg: "#e7e5fe", verdict: R.pR < 0.05 ? "상관 유의" : "유의하지 않음" },
+      vbg: R.pR < 0.05 ? "#3a6a67" : "#3f424d", vfg: "#e5fefc", verdict: R.pR < 0.05 ? "상관 유의" : "유의하지 않음" },
     Object.assign({ name: "적합결여 검정", en: "Lack-of-fit test", stat: R.lof ? "F = " + fmt(R.lof.F, 3) + " (df " + R.lof.df + ")" : "반복 측정 필요", p: R.lof ? fmtP(R.lof.p) : "—" }, verdict(R.lof ? R.lof.p : NaN, "선형 모형 적합", "적합결여 의심")),
     Object.assign({ name: "등분산성 검정", en: "Levene's test", stat: R.lev ? "W = " + fmt(R.lev.W, 3) + " (df " + R.lev.df + ")" : "산출 불가 — 수준별 3회 이상 반복 필요", p: R.lev ? fmtP(R.lev.p) : "—" }, verdict(R.lev ? R.lev.p : NaN, "등분산 가정 유지", "등분산 위반 의심")),
     Object.assign({ name: "정규성 검정 (잔차)", en: "Shapiro-Francia W′", stat: "W′ = " + fmt(R.Wsf, 4), p: fmtP(R.pSF) }, verdict(R.pSF, "정규성 유지", "정규성 위반 의심")),
     Object.assign({ name: "이상치 검정", en: "Grubbs' test", stat: "G = " + fmt(R.G, 3), p: fmtP(R.pG) }, verdict(R.pG, "이상치 없음", "이상치 의심")),
     { name: "영향점 진단", en: "Cook's distance (max)", stat: "D = " + fmt(R.cookMax, 4), p: "—",
-      vbg: R.cookMax > 1 ? "#5d5294" : "#423a6a", vfg: "#f5f4ff", verdict: R.cookMax > 1 ? "영향점 검토 필요" : "기준(1) 이내" },
+      vbg: R.cookMax > 1 ? "#529490" : "#3a6a67", vfg: "#f4fffe", verdict: R.cookMax > 1 ? "영향점 검토 필요" : "기준(1) 이내" },
     { name: "잔차 자기상관 검정", en: "Durbin-Watson", stat: "d = " + fmt(R.DW, 3), p: "—",
-      vbg: (R.DW > 1.5 && R.DW < 2.5) ? "#423a6a" : "#5d5294", vfg: "#f5f4ff",
+      vbg: (R.DW > 1.5 && R.DW < 2.5) ? "#3a6a67" : "#529490", vfg: "#f4fffe",
       verdict: !isFinite(R.DW) ? "산출 불가" : (R.DW > 1.5 && R.DW < 2.5) ? "자기상관 없음" : (R.DW <= 1.5 ? "양의 자기상관 의심" : "음의 자기상관 의심") },
   ];
 
@@ -1019,9 +1019,9 @@ function ResultsPanel({ result, tableWarn, emptyMsg, logX, setLogX, logY, setLog
 
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 16, marginTop: 14 }}>
-      <div style={{ background: "#232532", borderRadius: 14, padding: "clamp(14px,2vw,20px)", boxShadow: "0 0 0 1px #595d6c" }}>
+      <div style={{ background: "#17233e", borderRadius: 14, padding: "clamp(14px,2vw,20px)", boxShadow: "0 0 0 1px #595d6c" }}>
         <div style={{ display: "flex", alignItems: "baseline", gap: 10, flexWrap: "wrap", marginBottom: 10 }}>
-          <span style={{ fontSize: 10, letterSpacing: ".1em", textTransform: "uppercase", color: "#9184d9" }}>회귀식 · Regression equation</span>
+          <span style={{ fontSize: 10, letterSpacing: ".1em", textTransform: "uppercase", color: "#84d9d3" }}>회귀식 · Regression equation</span>
           <div style={{ marginLeft: "auto" }}><CopyButton label="수식 복사" onClick={(done) => copy(eq, null, done)} /></div>
         </div>
         <div style={{ fontSize: "clamp(20px,3vw,30px)", fontWeight: 500, fontVariantNumeric: "tabular-nums", letterSpacing: "-.01em", wordBreak: "break-word" }}>{eq}</div>
@@ -1030,7 +1030,7 @@ function ResultsPanel({ result, tableWarn, emptyMsg, logX, setLogX, logY, setLog
 
       <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(148px,1fr))", gap: 10 }}>
         {metrics.map((m, i) => (
-          <div key={i} style={{ background: "#232532", borderRadius: 8, padding: "12px 13px", boxShadow: "0 0 0 1px #3f424d", display: "flex", flexDirection: "column", gap: 3 }}>
+          <div key={i} style={{ background: "#17233e", borderRadius: 8, padding: "12px 13px", boxShadow: "0 0 0 1px #3f424d", display: "flex", flexDirection: "column", gap: 3 }}>
             <span style={{ fontSize: 11, color: "rgba(233,233,237,.55)" }}>{m.k}</span>
             <span style={{ fontSize: 20, fontWeight: 500, fontVariantNumeric: "tabular-nums" }}>{m.v}</span>
             <span style={{ fontSize: 10, letterSpacing: ".03em", color: "rgba(233,233,237,.35)" }}>{m.en}</span>
@@ -1039,7 +1039,7 @@ function ResultsPanel({ result, tableWarn, emptyMsg, logX, setLogX, logY, setLog
       </div>
 
       <div style={{ display: "flex", flexWrap: "wrap", gap: 16 }}>
-        <div style={{ flex: "1 1 340px", minWidth: 300, background: "#232532", borderRadius: 14, padding: "clamp(13px,2vw,18px)", boxShadow: "0 0 0 1px #3f424d" }}>
+        <div style={{ flex: "1 1 340px", minWidth: 300, background: "#17233e", borderRadius: 14, padding: "clamp(13px,2vw,18px)", boxShadow: "0 0 0 1px #3f424d" }}>
           <div style={{ display: "flex", alignItems: "baseline", gap: 8, marginBottom: 8 }}>
             <h5 style={{ margin: 0, fontSize: 15 }}>신뢰구간 <span style={{ fontSize: 11, color: "rgba(233,233,237,.4)", fontWeight: 400 }}>Confidence interval (95%)</span></h5>
             <div style={{ marginLeft: "auto" }}><CopyButton label="표 복사" onClick={(done) => copy(tsv(ciT), htmlTable(ciT), done)} /></div>
@@ -1052,7 +1052,7 @@ function ResultsPanel({ result, tableWarn, emptyMsg, logX, setLogX, logY, setLog
           </div>
         </div>
 
-        <div style={{ flex: "1 1 340px", minWidth: 300, background: "#232532", borderRadius: 14, padding: "clamp(13px,2vw,18px)", boxShadow: "0 0 0 1px #3f424d" }}>
+        <div style={{ flex: "1 1 340px", minWidth: 300, background: "#17233e", borderRadius: 14, padding: "clamp(13px,2vw,18px)", boxShadow: "0 0 0 1px #3f424d" }}>
           <div style={{ display: "flex", alignItems: "baseline", gap: 8, marginBottom: 8 }}>
             <h5 style={{ margin: 0, fontSize: 15 }}>회귀 분산분석표 <span style={{ fontSize: 11, color: "rgba(233,233,237,.4)", fontWeight: 400 }}>ANOVA</span></h5>
             <div style={{ marginLeft: "auto" }}><CopyButton label="표 복사" onClick={(done) => copy(tsv(anT), htmlTable(anT), done)} /></div>
@@ -1066,7 +1066,7 @@ function ResultsPanel({ result, tableWarn, emptyMsg, logX, setLogX, logY, setLog
         </div>
       </div>
 
-      <div style={{ background: "#232532", borderRadius: 14, padding: "clamp(13px,2vw,18px)", boxShadow: "0 0 0 1px #3f424d" }}>
+      <div style={{ background: "#17233e", borderRadius: 14, padding: "clamp(13px,2vw,18px)", boxShadow: "0 0 0 1px #3f424d" }}>
         <div style={{ display: "flex", alignItems: "baseline", gap: 8, marginBottom: 8, flexWrap: "wrap" }}>
           <h5 style={{ margin: 0, fontSize: 15 }}>진단 · 검정 <span style={{ fontSize: 11, color: "rgba(233,233,237,.4)", fontWeight: 400 }}>Diagnostics &amp; tests</span></h5>
           <div style={{ marginLeft: "auto" }}><CopyButton label="표 복사" onClick={(done) => copy(tsv(tsT), htmlTable(tsT), done)} /></div>
@@ -1093,9 +1093,9 @@ function ResultsPanel({ result, tableWarn, emptyMsg, logX, setLogX, logY, setLog
           extra={<ScaleToggle on={lgOn} setOn={setLogX} disabledHint={!R.logOk ? "X ≤ 0 포함 — log 불가" : null} />}
           caption={captionFit(R, lgOn)}>
           {charts.fit.yt.map((t, i) => <line key={i} x1="52" x2="544" y1={t.y} y2={t.y} stroke="rgba(233,233,237,.07)" strokeWidth="1" />)}
-          <path d={charts.fit.pi} fill="rgba(145,132,217,.10)" />
-          <path d={charts.fit.ci} fill="rgba(145,132,217,.22)" />
-          <path d={charts.fit.line} stroke="#b5abfc" strokeWidth="1.8" fill="none" />
+          <path d={charts.fit.pi} fill="rgba(132,217,211,.10)" />
+          <path d={charts.fit.ci} fill="rgba(132,217,211,.22)" />
+          <path d={charts.fit.line} stroke="#abfcf7" strokeWidth="1.8" fill="none" />
           {charts.fit.pts.map((p, i) => <circle key={i} cx={p.cx} cy={p.cy} r="3.6" fill="#e9e9ed" />)}
           <line x1="52" x2="544" y1="280" y2="280" stroke="rgba(233,233,237,.25)" />
           <line x1="52" x2="52" y1="14" y2="280" stroke="rgba(233,233,237,.25)" />
@@ -1109,7 +1109,7 @@ function ResultsPanel({ result, tableWarn, emptyMsg, logX, setLogX, logY, setLog
           extra={<ScaleToggle on={lgOn} setOn={setLogX} disabledHint={!R.logOk ? "X ≤ 0 포함 — log 불가" : null} />}
           caption={captionResid(R)}>
           {charts.resid.yt.map((t, i) => <line key={i} x1="52" x2="544" y1={t.y} y2={t.y} stroke="rgba(233,233,237,.07)" />)}
-          <line x1="52" x2="544" y1={charts.resid.zero} y2={charts.resid.zero} stroke="#9184d9" strokeWidth="1.4" strokeDasharray="5 4" />
+          <line x1="52" x2="544" y1={charts.resid.zero} y2={charts.resid.zero} stroke="#84d9d3" strokeWidth="1.4" strokeDasharray="5 4" />
           {charts.resid.pts.map((p, i) => <circle key={i} cx={p.cx} cy={p.cy} r="3.6" fill="#e9e9ed" />)}
           <line x1="52" x2="544" y1="280" y2="280" stroke="rgba(233,233,237,.25)" />
           <line x1="52" x2="52" y1="14" y2="280" stroke="rgba(233,233,237,.25)" />
@@ -1128,8 +1128,8 @@ function ResultsPanel({ result, tableWarn, emptyMsg, logX, setLogX, logY, setLog
               <line x1={g.cx} x2={g.cx} y1={g.hi} y2={g.lo} stroke="rgba(233,233,237,.45)" />
               <line x1={g.wl} x2={g.wr} y1={g.hi} y2={g.hi} stroke="rgba(233,233,237,.45)" />
               <line x1={g.wl} x2={g.wr} y1={g.lo} y2={g.lo} stroke="rgba(233,233,237,.45)" />
-              <rect x={g.bx} y={g.q3} width={g.bw} height={g.bh} fill="rgba(145,132,217,.20)" stroke="#9184d9" />
-              <line x1={g.bx} x2={g.br} y1={g.med} y2={g.med} stroke="#d2cefd" strokeWidth="2" />
+              <rect x={g.bx} y={g.q3} width={g.bw} height={g.bh} fill="rgba(132,217,211,.20)" stroke="#84d9d3" />
+              <line x1={g.bx} x2={g.br} y1={g.med} y2={g.med} stroke="#cefdfa" strokeWidth="2" />
               <text x={g.cx} y="298" fill="rgba(233,233,237,.45)" fontSize="10.5" textAnchor="middle">{g.label}</text>
             </g>
           ))}
@@ -1146,7 +1146,7 @@ function ResultsPanel({ result, tableWarn, emptyMsg, logX, setLogX, logY, setLog
           {charts.ind.dots.map((p, i) => <circle key={i} cx={p.cx} cy={p.cy} r="3.4" fill="#e9e9ed" opacity="0.85" />)}
           {charts.ind.groups.map((g, i) => (
             <g key={i}>
-              <line x1={g.wl} x2={g.wr} y1={g.mean} y2={g.mean} stroke="#9184d9" strokeWidth="1.6" />
+              <line x1={g.wl} x2={g.wr} y1={g.mean} y2={g.mean} stroke="#84d9d3" strokeWidth="1.6" />
               <text x={g.cx} y="298" fill="rgba(233,233,237,.45)" fontSize="10.5" textAnchor="middle">{g.label}</text>
             </g>
           ))}
@@ -1161,9 +1161,9 @@ function ResultsPanel({ result, tableWarn, emptyMsg, logX, setLogX, logY, setLog
           {charts.intv.yt.map((t, i) => <line key={i} x1="52" x2="544" y1={t.y} y2={t.y} stroke="rgba(233,233,237,.07)" />)}
           {charts.intv.groups.map((g, i) => (
             <g key={i}>
-              <line x1={g.cx} x2={g.cx} y1={g.hi} y2={g.lo} stroke="#9184d9" strokeWidth="1.6" />
-              <line x1={g.wl} x2={g.wr} y1={g.hi} y2={g.hi} stroke="#9184d9" strokeWidth="1.6" />
-              <line x1={g.wl} x2={g.wr} y1={g.lo} y2={g.lo} stroke="#9184d9" strokeWidth="1.6" />
+              <line x1={g.cx} x2={g.cx} y1={g.hi} y2={g.lo} stroke="#84d9d3" strokeWidth="1.6" />
+              <line x1={g.wl} x2={g.wr} y1={g.hi} y2={g.hi} stroke="#84d9d3" strokeWidth="1.6" />
+              <line x1={g.wl} x2={g.wr} y1={g.lo} y2={g.lo} stroke="#84d9d3" strokeWidth="1.6" />
               <circle cx={g.cx} cy={g.mean} r="4.2" fill="#e9e9ed" />
               <text x={g.cx} y="298" fill="rgba(233,233,237,.45)" fontSize="10.5" textAnchor="middle">{g.label}</text>
             </g>
@@ -1174,7 +1174,7 @@ function ResultsPanel({ result, tableWarn, emptyMsg, logX, setLogX, logY, setLog
         </ChartCard>
       </div>
 
-      <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap", padding: "14px 16px", borderRadius: 14, background: "#1c1e2c", boxShadow: "0 0 0 1px #3f424d" }}>
+      <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap", padding: "14px 16px", borderRadius: 14, background: "#141d34", boxShadow: "0 0 0 1px #3f424d" }}>
         <span style={{ fontSize: 12, color: "rgba(233,233,237,.5)", maxWidth: "52ch" }}>수치·통계표는 서식 있는 표와 plain text 로, 수식은 텍스트로 복사됩니다. 가중회귀(1/x, 1/x²)와 전체 리포트 파일 내보내기는 v2 예정입니다.</span>
         <div style={{ marginLeft: "auto", display: "flex", gap: 8 }}>
           <CopyButton label="전체 결과 복사" onClick={(done) => copy(
@@ -1206,7 +1206,7 @@ function HistoryScreen({ history, onSelect }) {
   const slots = Array.from({ length: window.EgCalHistory ? window.EgCalHistory.HISTORY_LIMIT : 10 }, (_, i) => history[i] || null);
   return (
     <section>
-      <span style={{ fontSize: 10, letterSpacing: ".1em", textTransform: "uppercase", color: "#9184d9" }}>기록 · History</span>
+      <span style={{ fontSize: 10, letterSpacing: ".1em", textTransform: "uppercase", color: "#84d9d3" }}>기록 · History</span>
       <h3 style={{ fontSize: "clamp(20px,2.4vw,25px)", margin: "0 0 6px" }}>저장된 결과 기록</h3>
       <p style={{ fontSize: 13, color: "rgba(233,233,237,.55)", margin: "0 0 18px", maxWidth: "60ch" }}>
         산출 결과 화면의 "저장" 버튼을 누르면 이 계정에 최신순으로 최대 {window.EgCalHistory ? window.EgCalHistory.HISTORY_LIMIT : 10}개까지 보관됩니다. 항목을 누르면 그 시점의 데이터와 결과를 다시 확인할 수 있습니다.
@@ -1216,7 +1216,7 @@ function HistoryScreen({ history, onSelect }) {
           <button key={i} className="btn" disabled={!rec} onClick={() => rec && onSelect(rec)}
             style={{
               minHeight: 52, width: "100%", justifyContent: "flex-start", padding: "0 18px", fontSize: 14,
-              background: "#232532", boxShadow: "0 0 0 1px #3f424d", borderColor: "transparent",
+              background: "#17233e", boxShadow: "0 0 0 1px #3f424d", borderColor: "transparent",
               color: rec ? "#e9e9ed" : "rgba(233,233,237,.4)", fontVariantNumeric: "tabular-nums",
             }}>
             {rec ? formatHistoryLabel(rec.createdAt) : "데이터 없음"}
@@ -1274,7 +1274,7 @@ function AppScreen({ userEmail, userId, onLogout }) {
 
   return (
     <div style={{ animation: "noct-in .28s ease" }}>
-      <div style={{ position: "sticky", top: 0, zIndex: 20, background: "#161826" }}>
+      <div style={{ position: "sticky", top: 0, zIndex: 20, background: "#11192c" }}>
         <div style={{ display: "flex", alignItems: "center", gap: 12, flexWrap: "wrap", padding: "12px clamp(14px,3vw,26px)" }}>
           <button className="btn" onClick={() => setView("main")} style={{ display: "flex", alignItems: "center", gap: 8, marginRight: "auto", padding: 0, color: "#e9e9ed" }}>
             <Logo /><span style={{ fontSize: 15, fontWeight: 500 }}>Eg-Cal : 공학용 연산 도우미</span>
@@ -1292,21 +1292,21 @@ function AppScreen({ userEmail, userId, onLogout }) {
         ) : (
           <>
             <section>
-              <span style={{ fontSize: 10, letterSpacing: ".1em", textTransform: "uppercase", color: "#9184d9" }}>01 · Calculator</span>
+              <span style={{ fontSize: 10, letterSpacing: ".1em", textTransform: "uppercase", color: "#84d9d3" }}>01 · Calculator</span>
               <h3 style={{ fontSize: "clamp(20px,2.4vw,25px)", margin: "0 0 6px" }}>공학용 계산기</h3>
               <p style={{ fontSize: 13, color: "rgba(233,233,237,.55)", margin: "0 0 18px", maxWidth: "56ch" }}>마우스 클릭과 키보드 입력을 함께 지원합니다. 계산 결과는 아래 표에 직접 입력하세요.</p>
               <Calculator />
             </section>
 
             <section>
-              <span style={{ fontSize: 10, letterSpacing: ".1em", textTransform: "uppercase", color: "#9184d9" }}>02 · Data input</span>
+              <span style={{ fontSize: 10, letterSpacing: ".1em", textTransform: "uppercase", color: "#84d9d3" }}>02 · Data input</span>
               <h3 style={{ fontSize: "clamp(20px,2.4vw,25px)", margin: "2px 0 6px" }}>데이터 입력</h3>
-              <p style={{ fontSize: 13, color: "rgba(233,233,237,.55)", margin: "0 0 16px", maxWidth: "60ch" }}>X(농도) · Y(신호) 2열 구조입니다. 엑셀에서 복사한 여러 행을 셀에 바로 붙여넣을 수 있고, 행이 부족하면 자동으로 추가됩니다. Tab · Enter 로 셀 사이를 이동합니다.</p>
+              <p style={{ fontSize: 13, color: "rgba(233,233,237,.55)", margin: "0 0 16px", maxWidth: "60ch" }}>X(인자) · Y(반응) 2열 구조입니다. 엑셀에서 복사한 여러 행을 셀에 바로 붙여넣을 수 있고, 행이 부족하면 자동으로 추가됩니다. Tab · Enter 로 셀 사이를 이동합니다.</p>
               <DataTable rows={rows} setRows={setRows} tableWarn={tableWarn} onCompute={() => compute()} />
             </section>
 
             <section>
-              <span style={{ fontSize: 10, letterSpacing: ".1em", textTransform: "uppercase", color: "#9184d9" }}>03 · Results</span>
+              <span style={{ fontSize: 10, letterSpacing: ".1em", textTransform: "uppercase", color: "#84d9d3" }}>03 · Results</span>
               <h3 style={{ fontSize: "clamp(20px,2.4vw,25px)", margin: "2px 0 6px" }}>산출 결과</h3>
               <ResultsPanel result={result} tableWarn={tableWarn} emptyMsg={emptyMsg} logX={logX} setLogX={setLogX} logY={logY} setLogY={setLogY} onSave={saveCurrentResult} />
             </section>
@@ -1324,7 +1324,7 @@ function NotFoundScreen({ loggedIn, navigate }) {
   return (
     <div style={{ minHeight: "100vh", display: "flex", flexDirection: "column", justifyContent: "center", padding: "48px 28px", animation: "noct-in .28s ease" }}>
       <div style={{ width: "100%", maxWidth: 420, margin: "0 auto" }}>
-        <div style={{ fontSize: "clamp(56px,12vw,88px)", fontWeight: 500, lineHeight: 1, letterSpacing: "-.03em", color: "#5d5294" }}>404</div>
+        <div style={{ fontSize: "clamp(56px,12vw,88px)", fontWeight: 500, lineHeight: 1, letterSpacing: "-.03em", color: "#529490" }}>404</div>
         <h2 style={{ fontSize: "clamp(22px,3vw,29px)", margin: "14px 0 8px" }}>페이지를 찾을 수 없습니다</h2>
         <p style={{ fontSize: 13.5, color: "rgba(233,233,237,.55)", margin: "0 0 24px", maxWidth: "36ch" }}>주소가 변경되었거나 삭제된 경로입니다. 아래 버튼으로 이동하세요.</p>
         <div style={{ height: 1, margin: "0 0 22px", background: "linear-gradient(to right,transparent,rgba(233,233,237,.14) 40px,rgba(233,233,237,.14) calc(100% - 40px),transparent)" }} />
