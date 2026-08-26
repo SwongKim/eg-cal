@@ -1,0 +1,9 @@
+{
+  "name": "eg-cal",
+  "version": "0.1.0",
+  "private": true,
+  "description": "공학용 연산 도우미 — 공학용 계산기 + 실험 데이터 회귀/통계 분석 도구",
+  "scripts": {
+    "dev": "node server.js"
+  }
+}

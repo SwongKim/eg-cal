@@ -1,0 +1,1290 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="_ds/nocturne-d6294a95-53e9-41c1-8caa-e87023b2a58a/styles.css">
+<script src="_ds/nocturne-d6294a95-53e9-41c1-8caa-e87023b2a58a/_ds_bundle.js"></script>
+<style>
+html,body{margin:0;background:#161826;color:#e9e9ed;font-family:"Inter",system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+*{box-sizing:border-box}
+input,button,textarea{font-family:inherit}
+@keyframes noct-in{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+a{color:#9184d9}
+a:hover{color:#b5abfc}
+</style>
+</helmet>
+
+<div style="min-height:100vh;background:#161826">
+
+<div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:8px 14px;background:#101120;border-bottom:1px solid rgba(233,233,237,.08);position:sticky;top:0;z-index:40">
+<span style="font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:rgba(233,233,237,.4);margin-right:4px">프로토타입</span>
+<div style="display:flex;gap:6px;flex-wrap:wrap">
+<sc-for list="{{ screenTabs }}" as="t" hint-placeholder-count="5">
+<button class="btn" onClick="{{ t.go }}" style="font-size:12px;padding:4px 10px;border-color:{{ t.bc }};color:{{ t.fg }};background:{{ t.bg }}">{{ t.label }}</button>
+</sc-for>
+</div>
+<div style="display:flex;gap:6px;margin-left:auto;flex-wrap:wrap">
+<sc-for list="{{ viewTabs }}" as="v" hint-placeholder-count="3">
+<button class="btn" onClick="{{ v.go }}" style="font-size:12px;padding:4px 10px;border-color:{{ v.bc }};color:{{ v.fg }};background:{{ v.bg }}">{{ v.label }}</button>
+</sc-for>
+</div>
+</div>
+
+<div style="padding:{{ shellPad }};display:flex;justify-content:center">
+<div style="width:100%;max-width:{{ shellMax }};border:{{ shellBorder }};border-radius:{{ shellRadius }};overflow:hidden;background:#161826;box-shadow:{{ shellShadow }}">
+
+<sc-if value="{{ isAuth }}" hint-placeholder-val="{{ true }}">
+<div data-screen-label="Auth" style="min-height:560px;display:flex;flex-direction:column;justify-content:center;padding:48px 28px;animation:noct-in .28s ease">
+<div style="width:100%;max-width:392px;margin:0 auto">
+
+<div style="display:flex;align-items:center;gap:9px;margin-bottom:34px">
+<svg width="22" height="22" viewBox="0 0 22 22" fill="none" stroke="#9184d9" stroke-width="1.6"><path d="M3 18 C7 18 8 4 12 4 C16 4 17 11 19 11" stroke-linecap="round"></path><circle cx="6.5" cy="16" r="1.6" fill="#9184d9" stroke="none"></circle><circle cx="15.5" cy="8" r="1.6" fill="#9184d9" stroke="none"></circle></svg>
+<span style="font-size:15px;font-weight:500;letter-spacing:-.01em">Eg-Cal : 공학용 연산 도우미</span>
+</div>
+
+<h2 style="font-size:29px;margin:0 0 8px">{{ authTitle }}</h2>
+<p style="font-size:13.5px;color:rgba(233,233,237,.55);margin:0 0 26px;max-width:34ch;text-wrap:pretty">{{ authSub }}</p>
+
+<div style="display:flex;flex-direction:column;gap:14px">
+
+<div class="field">
+<label>이메일</label>
+<input class="input" type="email" value="{{ email }}" onChange="{{ onEmail }}" onKeyDown="{{ onAuthKey }}" placeholder="you@lab.ac.kr" style="min-height:40px;border-color:{{ emailBorder }}">
+<sc-if value="{{ errEmail }}" hint-placeholder-val="{{ false }}">
+<div style="font-size:11.5px;color:#d2cefd;margin-top:5px;display:flex;gap:5px;align-items:center"><span style="width:3px;height:11px;background:#b5abfc;border-radius:2px"></span>{{ errEmail }}</div>
+</sc-if>
+</div>
+
+<sc-if value="{{ needsPw }}" hint-placeholder-val="{{ true }}">
+<div class="field">
+<label>비밀번호</label>
+<input class="input" type="password" value="{{ pw }}" onChange="{{ onPw }}" onKeyDown="{{ onAuthKey }}" placeholder="8자 이상" style="min-height:40px;border-color:{{ pwBorder }}">
+<sc-if value="{{ errPw }}" hint-placeholder-val="{{ false }}">
+<div style="font-size:11.5px;color:#d2cefd;margin-top:5px;display:flex;gap:5px;align-items:center"><span style="width:3px;height:11px;background:#b5abfc;border-radius:2px"></span>{{ errPw }}</div>
+</sc-if>
+</div>
+</sc-if>
+
+<sc-if value="{{ needsPw2 }}" hint-placeholder-val="{{ false }}">
+<div class="field">
+<label>비밀번호 확인</label>
+<input class="input" type="password" value="{{ pw2 }}" onChange="{{ onPw2 }}" onKeyDown="{{ onAuthKey }}" style="min-height:40px;border-color:{{ pw2Border }}">
+<sc-if value="{{ errPw2 }}" hint-placeholder-val="{{ false }}">
+<div style="font-size:11.5px;color:#d2cefd;margin-top:5px;display:flex;gap:5px;align-items:center"><span style="width:3px;height:11px;background:#b5abfc;border-radius:2px"></span>{{ errPw2 }}</div>
+</sc-if>
+</div>
+</sc-if>
+
+<sc-if value="{{ needsAgree }}" hint-placeholder-val="{{ false }}">
+<div style="padding:12px 13px;border-radius:8px;background:#1c1e2c;border:1px solid {{ agreeBox }}">
+<label style="display:flex;align-items:flex-start;gap:9px;cursor:pointer">
+<input type="checkbox" checked="{{ agree }}" onChange="{{ onAgree }}" style="width:16px;height:16px;margin-top:2px;flex:none;accent-color:#9184d9;cursor:pointer">
+<span style="font-size:12.5px;line-height:1.5;color:rgba(233,233,237,.75);text-wrap:pretty">개인정보 수집 및 이용 동의 <span style="color:#b5abfc">(필수)</span><br><span style="font-size:11.5px;color:rgba(233,233,237,.45)">수집 항목: 이메일 주소 · 이용 목적: 계정 식별 및 서비스 제공 · 보유 기간: 회원 탈퇴 시까지</span></span>
+</label>
+<sc-if value="{{ errAgree }}" hint-placeholder-val="{{ false }}">
+<div style="font-size:11.5px;color:#d2cefd;margin-top:8px;display:flex;gap:5px;align-items:center"><span style="width:3px;height:11px;background:#b5abfc;border-radius:2px"></span>{{ errAgree }}</div>
+</sc-if>
+</div>
+</sc-if>
+
+<sc-if value="{{ authNotice }}" hint-placeholder-val="{{ false }}">
+<div style="padding:11px 13px;border-radius:8px;background:#2b2741;border:1px solid rgba(181,171,252,.35);font-size:12.5px;color:#d2cefd;text-wrap:pretty">{{ authNotice }}</div>
+</sc-if>
+
+<button class="btn btn-primary btn-block" onClick="{{ onAuthSubmit }}" style="min-height:42px;font-size:14.5px;margin-top:4px">{{ authCta }}</button>
+</div>
+
+<div style="height:1px;margin:26px 0 18px;background:linear-gradient(to right,transparent,rgba(233,233,237,.14) 40px,rgba(233,233,237,.14) calc(100% - 40px),transparent)"></div>
+
+<div style="display:flex;flex-wrap:wrap;gap:6px 18px;font-size:12.5px;color:rgba(233,233,237,.5)">
+<sc-for list="{{ authLinks }}" as="l" hint-placeholder-count="2">
+<span style="display:flex;gap:6px;align-items:baseline">{{ l.pre }}<button class="btn btn-ghost" onClick="{{ l.go }}" style="font-size:12.5px;padding:0">{{ l.label }}</button></span>
+</sc-for>
+</div>
+
+</div>
+</div>
+</sc-if>
+
+<sc-if value="{{ isApp }}" hint-placeholder-val="{{ false }}">
+<div data-screen-label="App" style="animation:noct-in .28s ease">
+
+<div style="position:sticky;top:0;z-index:20;background:#161826">
+<div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;padding:12px clamp(14px,3vw,26px)">
+<div style="display:flex;align-items:center;gap:8px;margin-right:auto">
+<svg width="20" height="20" viewBox="0 0 22 22" fill="none" stroke="#9184d9" stroke-width="1.6"><path d="M3 18 C7 18 8 4 12 4 C16 4 17 11 19 11" stroke-linecap="round"></path><circle cx="6.5" cy="16" r="1.6" fill="#9184d9" stroke="none"></circle><circle cx="15.5" cy="8" r="1.6" fill="#9184d9" stroke="none"></circle></svg>
+<span style="font-size:15px;font-weight:500">Eg-Cal : 공학용 연산 도우미</span>
+</div>
+<span class="tag tag-neutral" style="font-size:10.5px">{{ userEmail }}</span>
+<button class="btn btn-secondary" onClick="{{ onLogout }}" style="font-size:12.5px;padding:5px 11px">로그아웃</button>
+</div>
+<div style="height:1px;background:linear-gradient(to right,transparent,rgba(233,233,237,.14) 48px,rgba(233,233,237,.14) calc(100% - 48px),transparent)"></div>
+</div>
+
+<div style="padding:clamp(18px,3vw,34px) clamp(14px,3vw,26px) 80px;display:flex;flex-direction:column;gap:clamp(28px,4vw,46px)">
+
+<section>
+<div style="display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;margin-bottom:4px">
+<span style="font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:#9184d9">01 · Calculator</span>
+</div>
+<h3 style="font-size:clamp(20px,2.4vw,25px);margin:0 0 6px">공학용 계산기</h3>
+<p style="font-size:13px;color:rgba(233,233,237,.55);margin:0 0 18px;max-width:56ch;text-wrap:pretty">마우스 클릭과 키보드 입력을 함께 지원합니다. 계산 결과는 아래 표에 직접 입력하세요.</p>
+
+<div style="display:flex;flex-wrap:wrap;gap:14px;align-items:flex-start">
+
+<div style="flex:1 1 300px;min-width:280px;background:#232532;border-radius:14px;padding:14px;box-shadow:0 0 0 1px #3f424d">
+<div style="display:flex;align-items:center;gap:8px;margin-bottom:10px">
+<button class="btn" onClick="{{ toggleDeg }}" style="font-size:11px;padding:3px 9px;border-color:#9184d9;color:#9184d9">{{ angleMode }}</button>
+<sc-if value="{{ memActive }}" hint-placeholder-val="{{ false }}">
+<span class="tag tag-accent" style="font-size:10px">M {{ memText }}</span>
+</sc-if>
+<span style="margin-left:auto;font-size:11px;color:rgba(233,233,237,.4)">{{ calcHint }}</span>
+</div>
+<div style="min-height:86px;padding:12px 14px;border-radius:8px;background:#161826;display:flex;flex-direction:column;justify-content:flex-end;gap:4px;overflow:hidden">
+<div style="font-size:13px;color:rgba(233,233,237,.5);word-break:break-all;text-align:right;min-height:18px;font-variant-numeric:tabular-nums">{{ calcExpr }}</div>
+<div style="font-size:clamp(26px,4vw,34px);font-weight:500;text-align:right;word-break:break-all;font-variant-numeric:tabular-nums;color:{{ calcOutColor }}">{{ calcOut }}</div>
+</div>
+<div style="display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:7px;margin-top:12px">
+<sc-for list="{{ numKeys }}" as="k" hint-placeholder-count="20">
+<button class="btn" onClick="{{ k.press }}" style="min-height:46px;font-size:{{ k.fs }};border-color:{{ k.bc }};color:{{ k.fg }};background:{{ k.bg }}">{{ k.label }}</button>
+</sc-for>
+</div>
+<button class="btn btn-primary btn-block" onClick="{{ pressEq }}" style="min-height:46px;font-size:17px;margin-top:7px">=</button>
+</div>
+
+<div style="flex:1 1 260px;min-width:250px;background:#232532;border-radius:14px;padding:14px;box-shadow:0 0 0 1px #3f424d">
+<div style="font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:rgba(233,233,237,.45);margin-bottom:10px">함수 · 상수 · 메모리</div>
+<div style="display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:7px">
+<sc-for list="{{ funcKeys }}" as="k" hint-placeholder-count="16">
+<button class="btn" onClick="{{ k.press }}" style="min-height:44px;font-size:{{ k.fs }};border-color:{{ k.bc }};color:{{ k.fg }};background:{{ k.bg }}">{{ k.label }}</button>
+</sc-for>
+</div>
+<div style="margin-top:12px;font-size:11.5px;line-height:1.7;color:rgba(233,233,237,.45)">
+<div>키보드 &nbsp;0-9 . + - * / ^ ( ) &nbsp;· Enter 계산 · Backspace 지우기 · Esc 초기화</div>
+</div>
+</div>
+
+</div>
+</section>
+
+<section>
+<span style="font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:#9184d9">02 · Data input</span>
+<h3 style="font-size:clamp(20px,2.4vw,25px);margin:2px 0 6px">데이터 입력</h3>
+<p style="font-size:13px;color:rgba(233,233,237,.55);margin:0 0 16px;max-width:60ch;text-wrap:pretty">X(농도) · Y(신호) 2열 구조입니다. 엑셀에서 복사한 여러 행을 셀에 바로 붙여넣을 수 있고, 행이 부족하면 자동으로 추가됩니다. Tab · Enter 로 셀 사이를 이동합니다.</p>
+
+<div style="background:#232532;border-radius:14px;box-shadow:0 0 0 1px #3f424d;overflow:hidden">
+<div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;padding:11px 14px">
+<span style="font-size:12px;color:rgba(233,233,237,.6)">{{ rowCountText }}</span>
+<sc-if value="{{ tableWarn }}" hint-placeholder-val="{{ false }}">
+<span class="tag tag-accent" style="font-size:10.5px">{{ tableWarn }}</span>
+</sc-if>
+<div style="margin-left:auto;display:flex;gap:7px;flex-wrap:wrap">
+<button class="btn btn-secondary" onClick="{{ addRow }}" style="font-size:12.5px;padding:5px 11px">+ 행 추가</button>
+<button class="btn btn-secondary" onClick="{{ loadSample }}" style="font-size:12.5px;padding:5px 11px">예제 데이터</button>
+<button class="btn btn-secondary" onClick="{{ clearRows }}" style="font-size:12.5px;padding:5px 11px">전체 지우기</button>
+</div>
+</div>
+<div style="max-height:340px;overflow:auto;padding:0 6px">
+<table class="table" style="min-width:100%">
+<thead><tr><th style="width:46px">#</th><th>X</th><th>Y</th><th style="width:44px"></th></tr></thead>
+<tbody>
+<sc-for list="{{ tableRows }}" as="r" hint-placeholder-count="10">
+<tr>
+<td style="color:rgba(233,233,237,.4);font-size:12px;font-variant-numeric:tabular-nums">{{ r.no }}</td>
+<td style="padding:4px 6px"><input class="input" value="{{ r.x }}" onChange="{{ r.setX }}" onPaste="{{ r.pasteX }}" onKeyDown="{{ r.keyX }}" inputMode="decimal" style="min-height:34px;font-variant-numeric:tabular-nums;border-color:{{ r.xb }}"></td>
+<td style="padding:4px 6px"><input class="input" value="{{ r.y }}" onChange="{{ r.setY }}" onPaste="{{ r.pasteY }}" onKeyDown="{{ r.keyY }}" inputMode="decimal" style="min-height:34px;font-variant-numeric:tabular-nums;border-color:{{ r.yb }}"></td>
+<td style="padding:4px 6px"><button class="btn btn-icon" onClick="{{ r.del }}" title="행 삭제" style="width:30px;height:30px;color:rgba(233,233,237,.45)">×</button></td>
+</tr>
+</sc-for>
+</tbody>
+</table>
+</div>
+<div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:12px 14px;background:rgba(233,233,237,.03)">
+<span style="font-size:11.5px;color:rgba(233,233,237,.45)">계산은 자동이 아닙니다 — 확인을 눌러 결과를 산출하세요.</span>
+<button class="btn btn-primary" onClick="{{ runCompute }}" style="margin-left:auto;min-height:38px;padding:0 22px;font-size:14px">확인</button>
+</div>
+</div>
+</section>
+
+<section>
+<span style="font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:#9184d9">03 · Results</span>
+<h3 style="font-size:clamp(20px,2.4vw,25px);margin:2px 0 6px">산출 결과</h3>
+
+<sc-if value="{{ noResult }}" hint-placeholder-val="{{ false }}">
+<div style="margin-top:14px;padding:34px 20px;border-radius:14px;background:#232532;box-shadow:0 0 0 1px #3f424d;text-align:center">
+<div style="font-size:14px;color:rgba(233,233,237,.6)">{{ emptyMsg }}</div>
+</div>
+</sc-if>
+
+<sc-if value="{{ hasResult }}" hint-placeholder-val="{{ true }}">
+<div style="display:flex;flex-direction:column;gap:16px;margin-top:14px">
+
+<div style="background:#232532;border-radius:14px;padding:clamp(14px,2vw,20px);box-shadow:0 0 0 1px #595d6c">
+<div style="display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;margin-bottom:10px">
+<span style="font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:#9184d9">회귀식 · Regression equation</span>
+<div style="margin-left:auto;display:flex;gap:7px">
+<button class="btn btn-secondary" onClick="{{ copyEq }}" style="font-size:12px;padding:4px 10px">{{ copyEqLabel }}</button>
+</div>
+</div>
+<div style="font-size:clamp(20px,3vw,30px);font-weight:500;font-variant-numeric:tabular-nums;letter-spacing:-.01em;word-break:break-word">{{ eq }}</div>
+<div style="margin-top:8px;font-size:12.5px;color:rgba(233,233,237,.5);font-variant-numeric:tabular-nums">n = {{ n }} · 자유도(df) = {{ dfRes }} · 신뢰수준 95%</div>
+</div>
+
+<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(148px,1fr));gap:10px">
+<sc-for list="{{ metrics }}" as="m" hint-placeholder-count="10">
+<div style="background:#232532;border-radius:8px;padding:12px 13px;box-shadow:0 0 0 1px #3f424d;display:flex;flex-direction:column;gap:3px">
+<span style="font-size:11px;color:rgba(233,233,237,.55)">{{ m.k }}</span>
+<span style="font-size:20px;font-weight:500;font-variant-numeric:tabular-nums">{{ m.v }}</span>
+<span style="font-size:10px;letter-spacing:.03em;color:rgba(233,233,237,.35)">{{ m.en }}</span>
+</div>
+</sc-for>
+</div>
+
+<div style="display:flex;flex-wrap:wrap;gap:16px">
+
+<div style="flex:1 1 340px;min-width:300px;background:#232532;border-radius:14px;padding:clamp(13px,2vw,18px);box-shadow:0 0 0 1px #3f424d">
+<div style="display:flex;align-items:baseline;gap:8px;margin-bottom:8px">
+<h5 style="margin:0;font-size:15px">신뢰구간 <span style="font-size:11px;color:rgba(233,233,237,.4);font-weight:400">Confidence interval (95%)</span></h5>
+<button class="btn btn-secondary" onClick="{{ copyCi }}" style="margin-left:auto;font-size:11.5px;padding:3px 9px">{{ copyCiLabel }}</button>
+</div>
+<table class="table" style="font-size:13px">
+<thead><tr><th>항목</th><th>추정값</th><th>표준오차</th><th>95% 하한</th><th>95% 상한</th></tr></thead>
+<tbody>
+<sc-for list="{{ ciRows }}" as="c" hint-placeholder-count="2">
+<tr><td>{{ c.name }}</td><td style="font-variant-numeric:tabular-nums">{{ c.est }}</td><td style="font-variant-numeric:tabular-nums">{{ c.se }}</td><td style="font-variant-numeric:tabular-nums">{{ c.lo }}</td><td style="font-variant-numeric:tabular-nums">{{ c.hi }}</td></tr>
+</sc-for>
+</tbody>
+</table>
+</div>
+
+<div style="flex:1 1 340px;min-width:300px;background:#232532;border-radius:14px;padding:clamp(13px,2vw,18px);box-shadow:0 0 0 1px #3f424d">
+<div style="display:flex;align-items:baseline;gap:8px;margin-bottom:8px">
+<h5 style="margin:0;font-size:15px">회귀 분산분석표 <span style="font-size:11px;color:rgba(233,233,237,.4);font-weight:400">ANOVA</span></h5>
+<button class="btn btn-secondary" onClick="{{ copyAnova }}" style="margin-left:auto;font-size:11.5px;padding:3px 9px">{{ copyAnovaLabel }}</button>
+</div>
+<table class="table" style="font-size:13px">
+<thead><tr><th>요인</th><th>df</th><th>SS</th><th>MS</th><th>F</th><th>p</th></tr></thead>
+<tbody>
+<sc-for list="{{ anovaRows }}" as="a" hint-placeholder-count="3">
+<tr><td>{{ a.src }}</td><td style="font-variant-numeric:tabular-nums">{{ a.df }}</td><td style="font-variant-numeric:tabular-nums">{{ a.ss }}</td><td style="font-variant-numeric:tabular-nums">{{ a.ms }}</td><td style="font-variant-numeric:tabular-nums">{{ a.f }}</td><td style="font-variant-numeric:tabular-nums">{{ a.p }}</td></tr>
+</sc-for>
+</tbody>
+</table>
+</div>
+
+</div>
+
+<div style="background:#232532;border-radius:14px;padding:clamp(13px,2vw,18px);box-shadow:0 0 0 1px #3f424d">
+<div style="display:flex;align-items:baseline;gap:8px;margin-bottom:8px;flex-wrap:wrap">
+<h5 style="margin:0;font-size:15px">진단 · 검정 <span style="font-size:11px;color:rgba(233,233,237,.4);font-weight:400">Diagnostics &amp; tests</span></h5>
+<button class="btn btn-secondary" onClick="{{ copyTests }}" style="margin-left:auto;font-size:11.5px;padding:3px 9px">{{ copyTestsLabel }}</button>
+</div>
+<table class="table" style="font-size:13px">
+<thead><tr><th>검정</th><th>통계량</th><th>p</th><th>판정</th></tr></thead>
+<tbody>
+<sc-for list="{{ testRows }}" as="t" hint-placeholder-count="6">
+<tr>
+<td><span style="display:block">{{ t.name }}</span><span style="font-size:10.5px;color:rgba(233,233,237,.35)">{{ t.en }}</span></td>
+<td style="font-variant-numeric:tabular-nums">{{ t.stat }}</td>
+<td style="font-variant-numeric:tabular-nums">{{ t.p }}</td>
+<td><span class="tag" style="font-size:10.5px;background:{{ t.vbg }};color:{{ t.vfg }}">{{ t.verdict }}</span></td>
+</tr>
+</sc-for>
+</tbody>
+</table>
+</div>
+
+<div style="display:flex;flex-wrap:wrap;gap:16px">
+
+<div style="flex:1 1 460px;min-width:300px;background:#232532;border-radius:14px;padding:clamp(13px,2vw,18px);box-shadow:0 0 0 1px #3f424d">
+<div style="display:flex;align-items:baseline;gap:8px;flex-wrap:wrap;margin-bottom:6px">
+<h5 style="margin:0;font-size:15px">검량선 · 신뢰대역 <span style="font-size:11px;color:rgba(233,233,237,.4);font-weight:400">Fit with confidence &amp; prediction bands</span></h5>
+<div style="display:flex;gap:6px;margin-left:auto;flex-wrap:wrap">
+<sc-for list="{{ scaleTabs }}" as="t" hint-placeholder-count="2">
+<button class="btn" onClick="{{ t.go }}" style="font-size:11.5px;padding:3px 9px;border-color:{{ t.bc }};color:{{ t.fg }};background:{{ t.bg }}">{{ t.label }}</button>
+</sc-for>
+<button class="btn btn-secondary" onClick="{{ dlFit }}" style="font-size:11.5px;padding:3px 9px">PNG 저장</button>
+</div>
+</div>
+<svg id="ch-fit" viewBox="0 0 560 320" style="width:100%;height:auto;display:block">
+<rect x="0" y="0" width="560" height="320" fill="#232532"></rect>
+<sc-for list="{{ fit.yt }}" as="t" hint-placeholder-count="5">
+<line x1="52" x2="544" y1="{{ t.y }}" y2="{{ t.y }}" stroke="rgba(233,233,237,.07)" stroke-width="1"></line>
+</sc-for>
+<path d="{{ fit.pi }}" fill="rgba(145,132,217,.10)"></path>
+<path d="{{ fit.ci }}" fill="rgba(145,132,217,.22)"></path>
+<path d="{{ fit.line }}" stroke="#b5abfc" stroke-width="1.8" fill="none"></path>
+<sc-for list="{{ fit.pts }}" as="p" hint-placeholder-count="10">
+<circle cx="{{ p.cx }}" cy="{{ p.cy }}" r="3.6" fill="#e9e9ed"></circle>
+</sc-for>
+<line x1="52" x2="544" y1="280" y2="280" stroke="rgba(233,233,237,.25)"></line>
+<line x1="52" x2="52" y1="14" y2="280" stroke="rgba(233,233,237,.25)"></line>
+<sc-for list="{{ fit.xt }}" as="t" hint-placeholder-count="5">
+<text x="{{ t.x }}" y="298" fill="rgba(233,233,237,.45)" font-size="10.5" text-anchor="middle">{{ t.label }}</text>
+</sc-for>
+<sc-for list="{{ fit.yt }}" as="t" hint-placeholder-count="5">
+<text x="46" y="{{ t.ty }}" fill="rgba(233,233,237,.45)" font-size="10.5" text-anchor="end">{{ t.label }}</text>
+</sc-for>
+<text x="544" y="314" fill="rgba(233,233,237,.35)" font-size="10" text-anchor="end">X</text>
+<text x="10" y="20" fill="rgba(233,233,237,.35)" font-size="10">Y</text>
+</svg>
+<div style="display:flex;gap:14px;flex-wrap:wrap;margin-top:8px;font-size:11px;color:rgba(233,233,237,.5)">
+<span style="display:flex;align-items:center;gap:5px"><span style="width:14px;height:2px;background:#b5abfc"></span>회귀선</span>
+<span style="display:flex;align-items:center;gap:5px"><span style="width:14px;height:9px;background:rgba(145,132,217,.22)"></span>신뢰대역 95%</span>
+<span style="display:flex;align-items:center;gap:5px"><span style="width:14px;height:9px;background:rgba(145,132,217,.10)"></span>예측구간 95%</span>
+<span style="color:rgba(233,233,237,.38)">{{ scaleNote }}</span>
+</div>
+</div>
+
+<div style="flex:1 1 380px;min-width:300px;background:#232532;border-radius:14px;padding:clamp(13px,2vw,18px);box-shadow:0 0 0 1px #3f424d">
+<div style="display:flex;align-items:baseline;gap:8px;flex-wrap:wrap;margin-bottom:6px">
+<h5 style="margin:0;font-size:15px">잔차 그림 <span style="font-size:11px;color:rgba(233,233,237,.4);font-weight:400">Residual plot</span></h5>
+<div style="display:flex;gap:6px;margin-left:auto;flex-wrap:wrap">
+<sc-for list="{{ scaleTabs }}" as="t" hint-placeholder-count="2">
+<button class="btn" onClick="{{ t.go }}" style="font-size:11.5px;padding:3px 9px;border-color:{{ t.bc }};color:{{ t.fg }};background:{{ t.bg }}">{{ t.label }}</button>
+</sc-for>
+<button class="btn btn-secondary" onClick="{{ dlResid }}" style="font-size:11.5px;padding:3px 9px">PNG 저장</button>
+</div>
+</div>
+<svg id="ch-resid" viewBox="0 0 560 320" style="width:100%;height:auto;display:block">
+<rect x="0" y="0" width="560" height="320" fill="#232532"></rect>
+<sc-for list="{{ resid.yt }}" as="t" hint-placeholder-count="5">
+<line x1="52" x2="544" y1="{{ t.y }}" y2="{{ t.y }}" stroke="rgba(233,233,237,.07)"></line>
+</sc-for>
+<line x1="52" x2="544" y1="{{ resid.zero }}" y2="{{ resid.zero }}" stroke="#9184d9" stroke-width="1.4" stroke-dasharray="5 4"></line>
+<sc-for list="{{ resid.pts }}" as="p" hint-placeholder-count="10">
+<circle cx="{{ p.cx }}" cy="{{ p.cy }}" r="3.6" fill="#e9e9ed"></circle>
+</sc-for>
+<line x1="52" x2="544" y1="280" y2="280" stroke="rgba(233,233,237,.25)"></line>
+<line x1="52" x2="52" y1="14" y2="280" stroke="rgba(233,233,237,.25)"></line>
+<sc-for list="{{ resid.xt }}" as="t" hint-placeholder-count="5">
+<text x="{{ t.x }}" y="298" fill="rgba(233,233,237,.45)" font-size="10.5" text-anchor="middle">{{ t.label }}</text>
+</sc-for>
+<sc-for list="{{ resid.yt }}" as="t" hint-placeholder-count="5">
+<text x="46" y="{{ t.ty }}" fill="rgba(233,233,237,.45)" font-size="10.5" text-anchor="end">{{ t.label }}</text>
+</sc-for>
+<text x="544" y="314" fill="rgba(233,233,237,.35)" font-size="10" text-anchor="end">적합값 X</text>
+<text x="10" y="20" fill="rgba(233,233,237,.35)" font-size="10">e</text>
+</svg>
+</div>
+
+<div style="flex:1 1 380px;min-width:300px;background:#232532;border-radius:14px;padding:clamp(13px,2vw,18px);box-shadow:0 0 0 1px #3f424d">
+<div style="display:flex;align-items:baseline;gap:8px;flex-wrap:wrap;margin-bottom:6px">
+<h5 style="margin:0;font-size:15px">상자 그림 <span style="font-size:11px;color:rgba(233,233,237,.4);font-weight:400">Box plot by X</span></h5>
+<button class="btn btn-secondary" onClick="{{ dlBox }}" style="margin-left:auto;font-size:11.5px;padding:3px 9px">PNG 저장</button>
+</div>
+<svg id="ch-box" viewBox="0 0 560 320" style="width:100%;height:auto;display:block">
+<rect x="0" y="0" width="560" height="320" fill="#232532"></rect>
+<sc-for list="{{ box.yt }}" as="t" hint-placeholder-count="5">
+<line x1="52" x2="544" y1="{{ t.y }}" y2="{{ t.y }}" stroke="rgba(233,233,237,.07)"></line>
+</sc-for>
+<sc-for list="{{ box.groups }}" as="g" hint-placeholder-count="5">
+<g>
+<line x1="{{ g.cx }}" x2="{{ g.cx }}" y1="{{ g.hi }}" y2="{{ g.lo }}" stroke="rgba(233,233,237,.45)"></line>
+<line x1="{{ g.wl }}" x2="{{ g.wr }}" y1="{{ g.hi }}" y2="{{ g.hi }}" stroke="rgba(233,233,237,.45)"></line>
+<line x1="{{ g.wl }}" x2="{{ g.wr }}" y1="{{ g.lo }}" y2="{{ g.lo }}" stroke="rgba(233,233,237,.45)"></line>
+<rect x="{{ g.bx }}" y="{{ g.q3 }}" width="{{ g.bw }}" height="{{ g.bh }}" fill="rgba(145,132,217,.20)" stroke="#9184d9"></rect>
+<line x1="{{ g.bx }}" x2="{{ g.br }}" y1="{{ g.med }}" y2="{{ g.med }}" stroke="#d2cefd" stroke-width="2"></line>
+<text x="{{ g.cx }}" y="298" fill="rgba(233,233,237,.45)" font-size="10.5" text-anchor="middle">{{ g.label }}</text>
+</g>
+</sc-for>
+<line x1="52" x2="544" y1="280" y2="280" stroke="rgba(233,233,237,.25)"></line>
+<line x1="52" x2="52" y1="14" y2="280" stroke="rgba(233,233,237,.25)"></line>
+<sc-for list="{{ box.yt }}" as="t" hint-placeholder-count="5">
+<text x="46" y="{{ t.ty }}" fill="rgba(233,233,237,.45)" font-size="10.5" text-anchor="end">{{ t.label }}</text>
+</sc-for>
+<text x="10" y="20" fill="rgba(233,233,237,.35)" font-size="10">Y</text>
+</svg>
+</div>
+
+<div style="flex:1 1 380px;min-width:300px;background:#232532;border-radius:14px;padding:clamp(13px,2vw,18px);box-shadow:0 0 0 1px #3f424d">
+<div style="display:flex;align-items:baseline;gap:8px;flex-wrap:wrap;margin-bottom:6px">
+<h5 style="margin:0;font-size:15px">개별값 그림 <span style="font-size:11px;color:rgba(233,233,237,.4);font-weight:400">Individual value plot</span></h5>
+<button class="btn btn-secondary" onClick="{{ dlInd }}" style="margin-left:auto;font-size:11.5px;padding:3px 9px">PNG 저장</button>
+</div>
+<svg id="ch-ind" viewBox="0 0 560 320" style="width:100%;height:auto;display:block">
+<rect x="0" y="0" width="560" height="320" fill="#232532"></rect>
+<sc-for list="{{ ind.yt }}" as="t" hint-placeholder-count="5">
+<line x1="52" x2="544" y1="{{ t.y }}" y2="{{ t.y }}" stroke="rgba(233,233,237,.07)"></line>
+</sc-for>
+<sc-for list="{{ ind.dots }}" as="p" hint-placeholder-count="10">
+<circle cx="{{ p.cx }}" cy="{{ p.cy }}" r="3.4" fill="#e9e9ed" opacity="0.85"></circle>
+</sc-for>
+<sc-for list="{{ ind.groups }}" as="g" hint-placeholder-count="5">
+<g>
+<line x1="{{ g.wl }}" x2="{{ g.wr }}" y1="{{ g.mean }}" y2="{{ g.mean }}" stroke="#9184d9" stroke-width="1.6"></line>
+<text x="{{ g.cx }}" y="298" fill="rgba(233,233,237,.45)" font-size="10.5" text-anchor="middle">{{ g.label }}</text>
+</g>
+</sc-for>
+<line x1="52" x2="544" y1="280" y2="280" stroke="rgba(233,233,237,.25)"></line>
+<line x1="52" x2="52" y1="14" y2="280" stroke="rgba(233,233,237,.25)"></line>
+<sc-for list="{{ ind.yt }}" as="t" hint-placeholder-count="5">
+<text x="46" y="{{ t.ty }}" fill="rgba(233,233,237,.45)" font-size="10.5" text-anchor="end">{{ t.label }}</text>
+</sc-for>
+</svg>
+</div>
+
+<div style="flex:1 1 380px;min-width:300px;background:#232532;border-radius:14px;padding:clamp(13px,2vw,18px);box-shadow:0 0 0 1px #3f424d">
+<div style="display:flex;align-items:baseline;gap:8px;flex-wrap:wrap;margin-bottom:6px">
+<h5 style="margin:0;font-size:15px">구간 그림 <span style="font-size:11px;color:rgba(233,233,237,.4);font-weight:400">Interval plot, mean ± 95% CI</span></h5>
+<button class="btn btn-secondary" onClick="{{ dlInt }}" style="margin-left:auto;font-size:11.5px;padding:3px 9px">PNG 저장</button>
+</div>
+<svg id="ch-int" viewBox="0 0 560 320" style="width:100%;height:auto;display:block">
+<rect x="0" y="0" width="560" height="320" fill="#232532"></rect>
+<sc-for list="{{ intv.yt }}" as="t" hint-placeholder-count="5">
+<line x1="52" x2="544" y1="{{ t.y }}" y2="{{ t.y }}" stroke="rgba(233,233,237,.07)"></line>
+</sc-for>
+<sc-for list="{{ intv.groups }}" as="g" hint-placeholder-count="5">
+<g>
+<line x1="{{ g.cx }}" x2="{{ g.cx }}" y1="{{ g.hi }}" y2="{{ g.lo }}" stroke="#9184d9" stroke-width="1.6"></line>
+<line x1="{{ g.wl }}" x2="{{ g.wr }}" y1="{{ g.hi }}" y2="{{ g.hi }}" stroke="#9184d9" stroke-width="1.6"></line>
+<line x1="{{ g.wl }}" x2="{{ g.wr }}" y1="{{ g.lo }}" y2="{{ g.lo }}" stroke="#9184d9" stroke-width="1.6"></line>
+<circle cx="{{ g.cx }}" cy="{{ g.mean }}" r="4.2" fill="#e9e9ed"></circle>
+<text x="{{ g.cx }}" y="298" fill="rgba(233,233,237,.45)" font-size="10.5" text-anchor="middle">{{ g.label }}</text>
+</g>
+</sc-for>
+<line x1="52" x2="544" y1="280" y2="280" stroke="rgba(233,233,237,.25)"></line>
+<line x1="52" x2="52" y1="14" y2="280" stroke="rgba(233,233,237,.25)"></line>
+<sc-for list="{{ intv.yt }}" as="t" hint-placeholder-count="5">
+<text x="46" y="{{ t.ty }}" fill="rgba(233,233,237,.45)" font-size="10.5" text-anchor="end">{{ t.label }}</text>
+</sc-for>
+</svg>
+</div>
+
+</div>
+
+<div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:14px 16px;border-radius:14px;background:#1c1e2c;box-shadow:0 0 0 1px #3f424d">
+<span style="font-size:12px;color:rgba(233,233,237,.5);max-width:52ch;text-wrap:pretty">수치·통계표는 서식 있는 표와 plain text 로, 수식은 텍스트로 복사됩니다. 가중회귀(1/x, 1/x²)와 전체 리포트 내보내기는 v2 예정입니다.</span>
+<button class="btn btn-primary" onClick="{{ copyAll }}" style="margin-left:auto;font-size:13px;padding:6px 14px">{{ copyAllLabel }}</button>
+</div>
+
+</div>
+</sc-if>
+</section>
+
+</div>
+</div>
+</sc-if>
+
+<sc-if value="{{ is404 }}" hint-placeholder-val="{{ false }}">
+<div data-screen-label="404" style="min-height:560px;display:flex;flex-direction:column;justify-content:center;padding:48px 28px;animation:noct-in .28s ease">
+<div style="width:100%;max-width:420px;margin:0 auto">
+<div style="font-size:clamp(56px,12vw,88px);font-weight:500;line-height:1;letter-spacing:-.03em;color:#5d5294">404</div>
+<h2 style="font-size:clamp(22px,3vw,29px);margin:14px 0 8px">페이지를 찾을 수 없습니다</h2>
+<p style="font-size:13.5px;color:rgba(233,233,237,.55);margin:0 0 24px;max-width:36ch;text-wrap:pretty">주소가 변경되었거나 삭제된 경로입니다. 아래 버튼으로 이동하세요.</p>
+<div style="height:1px;margin:0 0 22px;background:linear-gradient(to right,transparent,rgba(233,233,237,.14) 40px,rgba(233,233,237,.14) calc(100% - 40px),transparent)"></div>
+<button class="btn btn-primary" onClick="{{ go404 }}" style="min-height:40px;padding:0 20px;font-size:14px">{{ go404Label }}</button>
+</div>
+</div>
+</sc-if>
+
+</div>
+</div>
+
+</div>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;startScreen&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;login&quot;,&quot;signup&quot;,&quot;reset&quot;,&quot;app&quot;,&quot;404&quot;],&quot;default&quot;:&quot;login&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;프로토타입&quot;},&quot;viewport&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;desktop&quot;,&quot;mobile&quot;],&quot;default&quot;:&quot;desktop&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;프로토타입&quot;},&quot;showBands&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;차트&quot;},&quot;decimals&quot;:{&quot;editor&quot;:&quot;int&quot;,&quot;default&quot;:4,&quot;min&quot;:2,&quot;max&quot;:6,&quot;tsType&quot;:&quot;number&quot;,&quot;section&quot;:&quot;차트&quot;}}">
+class Component extends DCLogic {
+  state = {
+    screen: 'login',
+    view: 'desktop', logX: false,
+    email: '', pw: '', pw2: '',
+    errEmail: '', errPw: '', errPw2: '', errAgree: '', authNotice: '',
+    agree: false, loggedEmail: '',
+    calcExpr: '', calcOut: '0', calcErr: false, mem: 0, deg: true,
+    rows: this.sampleRows(),
+    result: null, tableWarn: '', emptyMsg: '데이터를 입력하고 확인을 누르면 결과가 산출됩니다.',
+    copied: {}
+  };
+
+  sampleRows() {
+    return [['0.5','0.412'],['0.5','0.398'],['0.5','0.421'],
+            ['1','0.812'],['1','0.795'],['1','0.828'],
+            ['2','1.601'],['2','1.632'],['2','1.588'],
+            ['5','4.02'],['5','3.96'],['5','4.05'],
+            ['10','7.94'],['10','8.06'],['10','7.98']]
+      .map(r => ({ x: r[0], y: r[1] }));
+  }
+
+  componentDidMount() {
+    this.setState({ screen: this.props.startScreen || 'login', view: this.props.viewport || 'desktop' });
+    this.onKey = (e) => {
+      if (this.state.screen !== 'app') return;
+      const t = e.target;
+      if (t && (t.tagName === 'INPUT' || t.tagName === 'TEXTAREA')) return;
+      const k = e.key;
+      if (/^[0-9.]$/.test(k)) this.push(k);
+      else if (k === '+' || k === '-' || k === '*' || k === '/' || k === '^' || k === '(' || k === ')') this.push(k);
+      else if (k === 'Enter' || k === '=') this.evaluate();
+      else if (k === 'Backspace') this.back();
+      else if (k === 'Escape') this.setState({ calcExpr: '', calcOut: '0', calcErr: false });
+      else return;
+      e.preventDefault();
+    };
+    window.addEventListener('keydown', this.onKey);
+    this.compute();
+  }
+  componentWillUnmount() { window.removeEventListener('keydown', this.onKey); }
+
+  /* ── numeric helpers ─────────────────────────────────────── */
+  f(v, d) {
+    if (v === null || v === undefined || typeof v !== 'number' || !isFinite(v)) return '—';
+    const a = Math.abs(v), p = d === undefined ? (this.props.decimals || 4) : d;
+    if (a !== 0 && (a < 1e-4 || a >= 1e6)) return v.toExponential(2);
+    return v.toFixed(p);
+  }
+  fp(p) {
+    if (p === null || p === undefined || !isFinite(p)) return '—';
+    if (p < 0.0001) return '<0.0001';
+    return p.toFixed(4);
+  }
+  gammaln(x) {
+    const c = [76.18009172947146,-86.50532032941677,24.01409824083091,-1.231739572450155,0.1208650973866179e-2,-0.5395239384953e-5];
+    let y = x, tmp = x + 5.5; tmp -= (x + 0.5) * Math.log(tmp);
+    let ser = 1.000000000190015;
+    for (let j = 0; j < 6; j++) ser += c[j] / ++y;
+    return -tmp + Math.log(2.5066282746310005 * ser / x);
+  }
+  betacf(a, b, x) {
+    const qab = a + b, qap = a + 1, qam = a - 1;
+    let c = 1, d = 1 - qab * x / qap;
+    if (Math.abs(d) < 1e-30) d = 1e-30;
+    d = 1 / d; let h = d;
+    for (let m = 1; m <= 200; m++) {
+      const m2 = 2 * m;
+      let aa = m * (b - m) * x / ((qam + m2) * (a + m2));
+      d = 1 + aa * d; if (Math.abs(d) < 1e-30) d = 1e-30;
+      c = 1 + aa / c; if (Math.abs(c) < 1e-30) c = 1e-30;
+      d = 1 / d; h *= d * c;
+      aa = -(a + m) * (qab + m) * x / ((a + m2) * (qap + m2));
+      d = 1 + aa * d; if (Math.abs(d) < 1e-30) d = 1e-30;
+      c = 1 + aa / c; if (Math.abs(c) < 1e-30) c = 1e-30;
+      d = 1 / d;
+      const del = d * c; h *= del;
+      if (Math.abs(del - 1) < 3e-8) break;
+    }
+    return h;
+  }
+  betai(a, b, x) {
+    if (!isFinite(x) || x <= 0) return 0;
+    if (x >= 1) return 1;
+    const bt = Math.exp(this.gammaln(a + b) - this.gammaln(a) - this.gammaln(b) + a * Math.log(x) + b * Math.log(1 - x));
+    return x < (a + 1) / (a + b + 2) ? bt * this.betacf(a, b, x) / a : 1 - bt * this.betacf(b, a, 1 - x) / b;
+  }
+  pT(t, df) { if (!isFinite(t) || df <= 0) return NaN; return this.betai(df / 2, 0.5, df / (df + t * t)); }
+  pF(F, d1, d2) { if (!isFinite(F) || F <= 0 || d1 <= 0 || d2 <= 0) return NaN; return this.betai(d2 / 2, d1 / 2, d2 / (d2 + d1 * F)); }
+  tcrit(df) {
+    const T = {1:12.706,2:4.303,3:3.182,4:2.776,5:2.571,6:2.447,7:2.365,8:2.306,9:2.262,10:2.228,
+      11:2.201,12:2.179,13:2.160,14:2.145,15:2.131,16:2.120,17:2.110,18:2.101,19:2.093,20:2.086,
+      21:2.080,22:2.074,23:2.069,24:2.064,25:2.060,26:2.056,27:2.052,28:2.048,29:2.045,30:2.042};
+    if (df < 1) return NaN;
+    if (T[df]) return T[df];
+    if (df <= 40) return 2.021; if (df <= 60) return 2.000; if (df <= 120) return 1.980; return 1.960;
+  }
+  qnorm(p) {
+    const a=[-3.969683028665376e1,2.209460984245205e2,-2.759285104469687e2,1.383577518672690e2,-3.066479806614716e1,2.506628277459239],
+          b=[-5.447609879822406e1,1.615858368580409e2,-1.556989798598866e2,6.680131188771972e1,-1.328068155288572e1],
+          c=[-7.784894002430293e-3,-3.223964580411365e-1,-2.400758277161838,-2.549732539343734,4.374664141464968,2.938163982698783],
+          d=[7.784695709041462e-3,3.224671290700398e-1,2.445134137142996,3.754408661907416];
+    const pl = 0.02425; let q, r;
+    if (p < pl) { q = Math.sqrt(-2 * Math.log(p)); return (((((c[0]*q+c[1])*q+c[2])*q+c[3])*q+c[4])*q+c[5]) / ((((d[0]*q+d[1])*q+d[2])*q+d[3])*q+1); }
+    if (p <= 1 - pl) { q = p - 0.5; r = q * q; return (((((a[0]*r+a[1])*r+a[2])*r+a[3])*r+a[4])*r+a[5])*q / (((((b[0]*r+b[1])*r+b[2])*r+b[3])*r+b[4])*r+1); }
+    q = Math.sqrt(-2 * Math.log(1 - p));
+    return -(((((c[0]*q+c[1])*q+c[2])*q+c[3])*q+c[4])*q+c[5]) / ((((d[0]*q+d[1])*q+d[2])*q+d[3])*q+1);
+  }
+  phi(z) {
+    const t = 1 / (1 + 0.2316419 * Math.abs(z));
+    const d = 0.3989423 * Math.exp(-z * z / 2);
+    const p = d * t * (0.3193815 + t * (-0.3565638 + t * (1.781478 + t * (-1.821256 + t * 1.330274))));
+    return z >= 0 ? 1 - p : p;
+  }
+
+  /* ── calculator ──────────────────────────────────────────── */
+  push(s) { this.setState(st => ({ calcExpr: st.calcExpr + s, calcErr: false })); }
+  back() { this.setState(st => ({ calcExpr: st.calcExpr.slice(0, -1), calcErr: false })); }
+  evaluate() {
+    const src = this.state.calcExpr.trim();
+    if (!src) return;
+    try {
+      const v = this.parse(src);
+      if (!isFinite(v)) throw new Error('range');
+      this.setState({ calcOut: this.trimNum(v), calcErr: false });
+    } catch (e) { this.setState({ calcOut: '오류', calcErr: true }); }
+  }
+  trimNum(v) {
+    const a = Math.abs(v);
+    if (a !== 0 && (a < 1e-9 || a >= 1e12)) return v.toExponential(6);
+    return String(parseFloat(v.toPrecision(12)));
+  }
+  parse(src) {
+    const s = src.replace(/×/g, '*').replace(/÷/g, '/').replace(/−/g, '-').replace(/π/g, 'PI').replace(/√/g, 'sqrt');
+    let i = 0;
+    const ws = () => { while (i < s.length && s[i] === ' ') i++; };
+    const self = this;
+    function expr() { let v = term(); ws(); while (s[i] === '+' || s[i] === '-') { const o = s[i++]; const r = term(); v = o === '+' ? v + r : v - r; ws(); } return v; }
+    function term() { let v = unary(); ws(); while (s[i] === '*' || s[i] === '/') { const o = s[i++]; const r = unary(); v = o === '*' ? v * r : v / r; ws(); } return v; }
+    function unary() { ws(); if (s[i] === '-') { i++; return -unary(); } if (s[i] === '+') { i++; return unary(); } return power(); }
+    function power() { const base = postfix(); ws(); if (s[i] === '^') { i++; return Math.pow(base, unary()); } return base; }
+    function postfix() { let v = primary(); ws(); while (s[i] === '!') { i++; v = fact(v); ws(); } return v; }
+    function fact(n) { if (n < 0 || n !== Math.floor(n) || n > 170) throw new Error('fact'); let r = 1; for (let k = 2; k <= n; k++) r *= k; return r; }
+    function primary() {
+      ws();
+      if (s[i] === '(') { i++; const v = expr(); ws(); if (s[i] === ')') i++; return v; }
+      const num = /^[0-9]*\.?[0-9]+(e[+-]?[0-9]+)?/i.exec(s.slice(i));
+      if (num) { i += num[0].length; return parseFloat(num[0]); }
+      const name = /^[A-Za-z]+/.exec(s.slice(i));
+      if (name) {
+        const id = name[0]; i += id.length;
+        if (id === 'PI') return Math.PI;
+        if (id === 'E' || id === 'e') return Math.E;
+        ws();
+        let arg;
+        if (s[i] === '(') { i++; arg = expr(); ws(); if (s[i] === ')') i++; } else arg = unary();
+        const D = self.state.deg ? Math.PI / 180 : 1;
+        switch (id) {
+          case 'sin': return Math.sin(arg * D);
+          case 'cos': return Math.cos(arg * D);
+          case 'tan': return Math.tan(arg * D);
+          case 'ln': return Math.log(arg);
+          case 'log': return Math.log10(arg);
+          case 'sqrt': return Math.sqrt(arg);
+          case 'exp': return Math.exp(arg);
+          default: throw new Error('fn');
+        }
+      }
+      throw new Error('parse');
+    }
+    const out = expr(); ws();
+    if (i < s.length) throw new Error('trail');
+    return out;
+  }
+  keyList(defs) {
+    return defs.map(d => ({
+      label: d[0], fs: d[3] || '15px',
+      bc: d[2] === 'op' ? 'rgba(145,132,217,.45)' : (d[2] === 'util' ? 'rgba(233,233,237,.16)' : 'transparent'),
+      fg: d[2] === 'op' ? '#b5abfc' : (d[2] === 'util' ? 'rgba(233,233,237,.7)' : '#e9e9ed'),
+      bg: d[2] === 'num' ? 'rgba(233,233,237,.06)' : 'transparent',
+      press: d[1]
+    }));
+  }
+
+  /* ── table ───────────────────────────────────────────────── */
+  setCell(i, key, v) {
+    this.setState(st => { const rows = st.rows.map(r => ({ ...r })); rows[i][key] = v; return { rows }; });
+  }
+  addRow() { this.setState(st => ({ rows: st.rows.concat([{ x: '', y: '' }]) })); }
+  delRow(i) { this.setState(st => { const rows = st.rows.slice(); rows.splice(i, 1); return { rows: rows.length ? rows : [{ x: '', y: '' }] }; }); }
+  clearRows() { this.setState({ rows: Array.from({ length: 5 }, () => ({ x: '', y: '' })), result: null, emptyMsg: '데이터를 입력하고 확인을 누르면 결과가 산출됩니다.' }); }
+  loadSample() { this.setState({ rows: this.sampleRows() }, () => this.compute()); }
+  handlePaste(e, i, key) {
+    const txt = (e.clipboardData || window.clipboardData).getData('text');
+    if (!txt) return;
+    const lines = txt.replace(/\r/g, '').split('\n').filter(l => l.trim() !== '');
+    if (lines.length === 0) return;
+    e.preventDefault();
+    const cells = lines.map(l => l.split(/\t|,|\s{1,}/).filter(c => c !== ''));
+    this.setState(st => {
+      const rows = st.rows.map(r => ({ ...r }));
+      cells.forEach((c, k) => {
+        const idx = i + k;
+        while (rows.length <= idx) rows.push({ x: '', y: '' });
+        if (key === 'x') { rows[idx].x = c[0] !== undefined ? c[0].trim() : rows[idx].x; if (c[1] !== undefined) rows[idx].y = c[1].trim(); }
+        else { rows[idx].y = c[0] !== undefined ? c[0].trim() : rows[idx].y; }
+      });
+      return { rows, tableWarn: cells.length + '행 붙여넣기' };
+    });
+  }
+  cellKey(e, i, key) {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      const next = document.querySelectorAll('#om-none');
+      if (i === this.state.rows.length - 1) this.addRow();
+      const inputs = Array.from(e.target.closest('table').querySelectorAll('input'));
+      const at = inputs.indexOf(e.target);
+      setTimeout(() => {
+        const all = Array.from(document.querySelectorAll('table.table input'));
+        const t = all[at + 2];
+        if (t) t.focus();
+      }, 10);
+      void next;
+    }
+  }
+
+  /* ── statistics ──────────────────────────────────────────── */
+  compute() {
+    const pts = []; let bad = 0;
+    this.state.rows.forEach(r => {
+      const sx = String(r.x).trim(), sy = String(r.y).trim();
+      if (sx === '' && sy === '') return;
+      const x = parseFloat(sx), y = parseFloat(sy);
+      if (!isFinite(x) || !isFinite(y)) { bad++; return; }
+      pts.push({ x, y });
+    });
+    if (pts.length < 3) {
+      this.setState({ result: null, tableWarn: bad ? bad + '개 셀 오류' : '', emptyMsg: '유효한 데이터가 3행 이상 필요합니다. 현재 ' + pts.length + '행.' });
+      return;
+    }
+    const n = pts.length;
+    const xs = pts.map(p => p.x), ys = pts.map(p => p.y);
+    const mx = xs.reduce((a, b) => a + b, 0) / n, my = ys.reduce((a, b) => a + b, 0) / n;
+    let Sxx = 0, Syy = 0, Sxy = 0;
+    pts.forEach(p => { Sxx += (p.x - mx) ** 2; Syy += (p.y - my) ** 2; Sxy += (p.x - mx) * (p.y - my); });
+    const b = Sxy / Sxx, a = my - b * mx;
+    const fitted = pts.map(p => a + b * p.x);
+    const res = pts.map((p, i) => p.y - fitted[i]);
+    const SSE = res.reduce((s, e) => s + e * e, 0), SSR = Syy - SSE, SST = Syy;
+    const dfRes = n - 2;
+    const MSE = SSE / dfRes, Syx = Math.sqrt(MSE);
+    const R2 = SSR / SST, adjR2 = 1 - (1 - R2) * (n - 1) / dfRes;
+    const r = Sxy / Math.sqrt(Sxx * Syy);
+    const seB = Syx / Math.sqrt(Sxx), seA = Syx * Math.sqrt(1 / n + mx * mx / Sxx);
+    const tB = b / seB, pB = this.pT(tB, dfRes);
+    const F = (SSR / 1) / MSE, pFv = this.pF(F, 1, dfRes);
+    const tc = this.tcrit(dfRes);
+    const LOD = 3.3 * Syx / Math.abs(b), LOQ = 10 * Syx / Math.abs(b);
+
+    // recovery + %RSD
+    const recs = [];
+    pts.forEach(p => { if (p.x !== 0) recs.push(((p.y - a) / b) / p.x * 100); });
+    const recovery = recs.length ? recs.reduce((s, v) => s + v, 0) / recs.length : NaN;
+
+    // groups by X
+    const gm = new Map();
+    pts.forEach(p => { const k = String(p.x); if (!gm.has(k)) gm.set(k, []); gm.get(k).push(p.y); });
+    const groups = Array.from(gm.entries()).map(([k, v]) => ({ x: parseFloat(k), ys: v })).sort((p, q) => p.x - q.x);
+    const rsds = [];
+    groups.forEach(g => {
+      if (g.ys.length < 2) return;
+      const m = g.ys.reduce((s, v) => s + v, 0) / g.ys.length;
+      const sd = Math.sqrt(g.ys.reduce((s, v) => s + (v - m) ** 2, 0) / (g.ys.length - 1));
+      if (m !== 0) rsds.push(Math.abs(sd / m) * 100);
+    });
+    const rsd = rsds.length ? rsds.reduce((s, v) => s + v, 0) / rsds.length : NaN;
+
+    // lack of fit
+    let lof = null;
+    const reps = groups.filter(g => g.ys.length > 1);
+    if (reps.length >= 1 && groups.length > 2) {
+      let SSPE = 0, dfPE = 0;
+      groups.forEach(g => {
+        const m = g.ys.reduce((s, v) => s + v, 0) / g.ys.length;
+        g.ys.forEach(v => { SSPE += (v - m) ** 2; });
+        dfPE += g.ys.length - 1;
+      });
+      const dfLF = groups.length - 2, SSLF = SSE - SSPE;
+      if (dfPE > 0 && dfLF > 0) {
+        const Fl = (SSLF / dfLF) / (SSPE / dfPE);
+        lof = { F: Fl, p: this.pF(Fl, dfLF, dfPE), df: dfLF + ', ' + dfPE };
+      }
+    }
+
+    // Levene (mean-based) on replicate groups
+    let lev = null;
+    const lreps = groups.filter(g => g.ys.length > 2);
+    if (lreps.length >= 2) {
+      const zs = lreps.map(g => {
+        const m = g.ys.reduce((s, v) => s + v, 0) / g.ys.length;
+        return g.ys.map(v => Math.abs(v - m));
+      });
+      const N = zs.reduce((s, z) => s + z.length, 0), k = zs.length;
+      const zbar = zs.flat().reduce((s, v) => s + v, 0) / N;
+      let num = 0, den = 0;
+      zs.forEach(z => {
+        const zi = z.reduce((s, v) => s + v, 0) / z.length;
+        num += z.length * (zi - zbar) ** 2;
+        z.forEach(v => { den += (v - zi) ** 2; });
+      });
+      const scale = Math.max(1e-12, Math.abs(zbar) * 1e-6);
+      if (den > scale && N > k) {
+        const W = (N - k) / (k - 1) * num / den;
+        lev = { W, p: this.pF(W, k - 1, N - k), df: (k - 1) + ', ' + (N - k) };
+      }
+    }
+
+    // Shapiro-Francia on residuals
+    const sr = res.slice().sort((p, q) => p - q);
+    const mi = sr.map((_, i) => this.qnorm((i + 1 - 0.375) / (n + 0.25)));
+    const mm = mi.reduce((s, v) => s + v, 0) / n, rm = sr.reduce((s, v) => s + v, 0) / n;
+    let cnum = 0, cd1 = 0, cd2 = 0;
+    sr.forEach((v, i) => { cnum += (v - rm) * (mi[i] - mm); cd1 += (v - rm) ** 2; cd2 += (mi[i] - mm) ** 2; });
+    const Wsf = (cnum / Math.sqrt(cd1 * cd2)) ** 2;
+    let pSF = NaN;
+    if (n >= 5 && Wsf < 1) {
+      const u = Math.log(n), v2 = Math.log(u);
+      const mu = -1.2725 + 1.0521 * (v2 - u), sig = 1.0308 - 0.26758 * (v2 + 2 / u);
+      pSF = 1 - this.phi((Math.log(1 - Wsf) - mu) / sig);
+    }
+
+    // Grubbs on residuals
+    const sdR = Math.sqrt(res.reduce((s, e) => s + (e - 0) ** 2, 0) / (n - 1));
+    const G = Math.max.apply(null, res.map(e => Math.abs(e))) / sdR;
+    let pG = NaN;
+    const uu = G * Math.sqrt(n) / (n - 1);
+    if (uu < 1) { const t2 = uu * uu * (n - 2) / (1 - uu * uu); pG = Math.min(1, n * this.pT(Math.sqrt(t2), n - 2)); }
+
+    // Cook's distance
+    const cook = pts.map((p, i) => {
+      const h = 1 / n + (p.x - mx) ** 2 / Sxx;
+      return (res[i] ** 2 / (2 * MSE)) * h / (1 - h) ** 2;
+    });
+    const cookMax = Math.max.apply(null, cook);
+
+    // Durbin-Watson (autocorrelation of residuals in input order)
+    let dwNum = 0;
+    for (let i = 1; i < n; i++) dwNum += (res[i] - res[i - 1]) ** 2;
+    const DW = SSE > 0 ? dwNum / SSE : NaN;
+    // intercept t-test (H0: a = 0) and correlation t-test (H0: r = 0)
+    const tA = a / seA, pA = this.pT(tA, dfRes);
+    const tR = r * Math.sqrt(dfRes) / Math.sqrt(Math.max(1e-15, 1 - r * r)), pR = this.pT(tR, dfRes);
+    const logOk = Math.min.apply(null, xs) > 0;
+
+    const R = { n, a, b, r, R2, adjR2, Syx, seA, seB, tB, pB, F, pF: pFv, tc, LOD, LOQ, recovery, rsd,
+      SSR, SSE, SST, dfRes, MSE, lof, lev, Wsf, pSF, G, pG, cookMax, DW, tA, pA, tR, pR, logOk,
+      pts, res, fitted, groups, mx, Sxx };
+    R.charts = this.charts(R, this.state.logX && logOk);
+    this.setState({ result: R, tableWarn: bad ? bad + '개 셀은 계산에서 제외' : '', emptyMsg: '' });
+  }
+
+  ticks(min, max) {
+    const out = [];
+    for (let i = 0; i <= 4; i++) out.push(min + (max - min) * i / 4);
+    return out;
+  }
+  tlabel(v, span) {
+    const a = Math.abs(v);
+    if (a !== 0 && (a < 0.01 || a >= 10000)) return v.toExponential(1);
+    if (span >= 50) return v.toFixed(0);
+    if (span >= 5) return v.toFixed(1);
+    if (span >= 0.5) return v.toFixed(2);
+    return v.toFixed(3);
+  }
+  axis(min, max, p0, p1, flip) {
+    const pad = (max - min) * 0.08 || (Math.abs(max) * 0.1 || 1);
+    const lo = min - pad, hi = max + pad, span = hi - lo;
+    const sc = (v) => flip ? p1 - (v - lo) / span * (p1 - p0) : p0 + (v - lo) / span * (p1 - p0);
+    return { lo, hi, span, sc };
+  }
+  yTicks(A) {
+    return this.ticks(A.lo, A.hi).map(v => ({ y: A.sc(v), ty: A.sc(v) + 3.5, label: this.tlabel(v, A.span) }));
+  }
+  xTicks(A) {
+    return this.ticks(A.lo, A.hi).map(v => ({ x: A.sc(v), label: this.tlabel(v, A.span) }));
+  }
+  sig(v) {
+    const a = Math.abs(v);
+    if (a === 0) return '0';
+    if (a < 0.001 || a >= 10000) return v.toExponential(1);
+    return String(parseFloat(v.toPrecision(3)));
+  }
+  charts(R, logX) {
+    const L = 52, Rr = 544, T = 14, B = 280;
+    const xs = R.pts.map(p => p.x), ys = R.pts.map(p => p.y);
+    const bands = this.props.showBands !== false;
+    const lg = !!logX && Math.min.apply(null, xs) > 0;
+    const tX = (v) => lg ? Math.log10(v) : v;
+    const iX = (t) => lg ? Math.pow(10, t) : t;
+
+    // fit chart
+    const AX = this.axis(tX(Math.min.apply(null, xs)), tX(Math.max.apply(null, xs)), L, Rr, false);
+    const grid = [];
+    for (let i = 0; i <= 60; i++) { const g = AX.lo + AX.span * i / 60; grid.push({ g, x: iX(g) }); }
+    const band = (m) => grid.map(o => ({ g: o.g, y: R.a + R.b * o.x, w: R.tc * R.Syx * Math.sqrt(m + 1 / R.n + (o.x - R.mx) ** 2 / R.Sxx) }));
+    const ci = band(0), pi = band(1);
+    const yAll = ys.concat(bands ? pi.map(p => p.y + p.w).concat(pi.map(p => p.y - p.w)) : grid.map(o => R.a + R.b * o.x));
+    const AY = this.axis(Math.min.apply(null, yAll), Math.max.apply(null, yAll), T, B, true);
+    const bandPath = (arr) => 'M' + arr.map(p => AX.sc(p.g).toFixed(1) + ' ' + AY.sc(p.y + p.w).toFixed(1)).join(' L') +
+      ' L' + arr.slice().reverse().map(p => AX.sc(p.g).toFixed(1) + ' ' + AY.sc(p.y - p.w).toFixed(1)).join(' L') + ' Z';
+    const xt = this.ticks(AX.lo, AX.hi).map(v => ({ x: +AX.sc(v).toFixed(1), label: lg ? this.sig(iX(v)) : this.tlabel(v, AX.span) }));
+    const fit = {
+      pts: R.pts.map(p => ({ cx: +AX.sc(tX(p.x)).toFixed(1), cy: +AY.sc(p.y).toFixed(1) })),
+      line: 'M' + grid.map(o => AX.sc(o.g).toFixed(1) + ' ' + AY.sc(R.a + R.b * o.x).toFixed(1)).join(' L'),
+      ci: bands ? bandPath(ci) : '', pi: bands ? bandPath(pi) : '',
+      xt, yt: this.yTicks(AY)
+    };
+
+    // residual chart
+    const rmax = Math.max.apply(null, R.res.map(e => Math.abs(e))) || 1;
+    const RY = this.axis(-rmax, rmax, T, B, true);
+    const resid = {
+      pts: R.pts.map((p, i) => ({ cx: +AX.sc(tX(p.x)).toFixed(1), cy: +RY.sc(R.res[i]).toFixed(1) })),
+      zero: +RY.sc(0).toFixed(1), xt, yt: this.yTicks(RY)
+    };
+
+    // category charts
+    const G = R.groups, k = G.length;
+    const GY = this.axis(Math.min.apply(null, ys), Math.max.apply(null, ys), T, B, true);
+    const slot = (Rr - L) / k;
+    const q = (arr, p) => {
+      const s = arr.slice().sort((x, y) => x - y);
+      const h = (s.length - 1) * p, lo = Math.floor(h), hi = Math.ceil(h);
+      return s[lo] + (s[hi] - s[lo]) * (h - lo);
+    };
+    const box = { yt: this.yTicks(GY), groups: G.map((g, i) => {
+      const cx = L + slot * (i + 0.5), bw = Math.min(52, slot * 0.5);
+      const q1 = q(g.ys, 0.25), q3 = q(g.ys, 0.75), med = q(g.ys, 0.5);
+      const iqr = q3 - q1;
+      const lo = Math.max(Math.min.apply(null, g.ys), q1 - 1.5 * iqr), hi = Math.min(Math.max.apply(null, g.ys), q3 + 1.5 * iqr);
+      const rawH = GY.sc(q1) - GY.sc(q3);
+      const bh = Math.max(8, rawH), top = GY.sc(q3) - (bh - rawH) / 2;
+      const cLo = Math.max(GY.sc(lo), top + bh + 4), cHi = Math.min(GY.sc(hi), top - 4);
+      return { cx: +cx.toFixed(1), bx: +(cx - bw / 2).toFixed(1), br: +(cx + bw / 2).toFixed(1), bw: +bw.toFixed(1),
+        wl: +(cx - bw / 2.6).toFixed(1), wr: +(cx + bw / 2.6).toFixed(1),
+        q3: +top.toFixed(1), bh: +bh.toFixed(1),
+        med: +Math.min(top + bh - 1, Math.max(top + 1, GY.sc(med))).toFixed(1),
+        lo: +cLo.toFixed(1), hi: +cHi.toFixed(1),
+        label: this.tlabel(g.x, Math.max.apply(null, xs) - Math.min.apply(null, xs)) };
+    }) };
+    const dots = [];
+    G.forEach((g, i) => {
+      const cx = L + slot * (i + 0.5);
+      g.ys.forEach((v, j) => dots.push({ cx: +(cx + (j - (g.ys.length - 1) / 2) * 9).toFixed(1), cy: +GY.sc(v).toFixed(1) }));
+    });
+    const ind = { yt: this.yTicks(GY), dots, groups: G.map((g, i) => {
+      const cx = L + slot * (i + 0.5), m = g.ys.reduce((s, v) => s + v, 0) / g.ys.length;
+      return { cx: +cx.toFixed(1), wl: +(cx - 16).toFixed(1), wr: +(cx + 16).toFixed(1), mean: +GY.sc(m).toFixed(1),
+        label: box.groups[i].label };
+    }) };
+    const ig = G.map((g, i) => {
+      const cx = L + slot * (i + 0.5);
+      const m = g.ys.reduce((s, v) => s + v, 0) / g.ys.length;
+      let hw = 0;
+      if (g.ys.length > 1) {
+        const sd = Math.sqrt(g.ys.reduce((s, v) => s + (v - m) ** 2, 0) / (g.ys.length - 1));
+        hw = this.tcrit(g.ys.length - 1) * sd / Math.sqrt(g.ys.length);
+      }
+      return { m, hw, cx };
+    });
+    const iAll = ig.map(o => o.m + o.hw).concat(ig.map(o => o.m - o.hw));
+    const IY = this.axis(Math.min.apply(null, iAll), Math.max.apply(null, iAll), T, B, true);
+    const intv = { yt: this.yTicks(IY), groups: ig.map((o, i) => ({
+      cx: +o.cx.toFixed(1), wl: +(o.cx - 11).toFixed(1), wr: +(o.cx + 11).toFixed(1),
+      mean: +IY.sc(o.m).toFixed(1), hi: +IY.sc(o.m + o.hw).toFixed(1), lo: +IY.sc(o.m - o.hw).toFixed(1),
+      label: box.groups[i].label })) };
+
+    return { fit, resid, box, ind, intv };
+  }
+
+  /* ── copy / export ───────────────────────────────────────── */
+  copy(key, text, html) {
+    const done = () => { this.setState(st => ({ copied: { ...st.copied, [key]: true } })); setTimeout(() => this.setState(st => ({ copied: { ...st.copied, [key]: false } })), 1600); };
+    try {
+      if (html && navigator.clipboard && window.ClipboardItem) {
+        navigator.clipboard.write([new ClipboardItem({ 'text/html': new Blob([html], { type: 'text/html' }), 'text/plain': new Blob([text], { type: 'text/plain' }) })]).then(done, () => { navigator.clipboard.writeText(text).then(done, done); });
+      } else if (navigator.clipboard) navigator.clipboard.writeText(text).then(done, done);
+      else done();
+    } catch (e) { done(); }
+  }
+  tsv(rows) { return rows.map(r => r.join('\t')).join('\n'); }
+  htmlTable(rows) {
+    return '<table border="1" cellspacing="0" cellpadding="4">' + rows.map((r, i) =>
+      '<tr>' + r.map(c => i === 0 ? '<th>' + c + '</th>' : '<td>' + c + '</td>').join('') + '</tr>').join('') + '</table>';
+  }
+  png(id, name) {
+    const svg = document.getElementById(id);
+    if (!svg) return;
+    const s = new XMLSerializer().serializeToString(svg);
+    const img = new Image();
+    img.onload = () => {
+      const c = document.createElement('canvas');
+      c.width = 1120; c.height = 640;
+      const ctx = c.getContext('2d');
+      ctx.fillStyle = '#232532'; ctx.fillRect(0, 0, c.width, c.height);
+      ctx.drawImage(img, 0, 0, c.width, c.height);
+      c.toBlob(bl => {
+        const u = URL.createObjectURL(bl);
+        const link = document.createElement('a');
+        link.href = u; link.download = name + '.png'; link.click();
+        setTimeout(() => URL.revokeObjectURL(u), 2000);
+      });
+    };
+    img.src = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(s);
+  }
+
+  /* ── auth ────────────────────────────────────────────────── */
+  accounts() {
+    const seed = { 'mercury225@naver.com': '12345678' };
+    try {
+      const raw = window.localStorage.getItem('egcal.accounts');
+      if (!raw) { window.localStorage.setItem('egcal.accounts', JSON.stringify(seed)); return seed; }
+      const obj = JSON.parse(raw);
+      if (!obj['mercury225@naver.com']) { obj['mercury225@naver.com'] = '12345678'; window.localStorage.setItem('egcal.accounts', JSON.stringify(obj)); }
+      return obj;
+    } catch (e) { return seed; }
+  }
+  saveAccounts(a) { try { window.localStorage.setItem('egcal.accounts', JSON.stringify(a)); } catch (e) {} }
+  logout() {
+    this.setState({ screen: 'login', loggedEmail: '', email: '', pw: '', pw2: '', agree: false,
+      errEmail: '', errPw: '', errPw2: '', errAgree: '', authNotice: '로그아웃되었습니다.' });
+  }
+  submitAuth() {
+    const s = this.state, sc = s.screen;
+    const em = s.email.trim().toLowerCase();
+    const okEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(em);
+    let eE = '', eP = '', eP2 = '', eA = '';
+    if (!em) eE = '이메일을 입력하세요.'; else if (!okEmail) eE = '이메일 형식이 올바르지 않습니다.';
+    if (sc !== 'reset') { if (!s.pw) eP = '비밀번호를 입력하세요.'; else if (s.pw.length < 8) eP = '비밀번호는 8자 이상이어야 합니다.'; }
+    if (sc === 'signup') {
+      if (!s.pw2) eP2 = '비밀번호를 다시 입력하세요.'; else if (s.pw !== s.pw2) eP2 = '비밀번호가 일치하지 않습니다.';
+      if (!s.agree) eA = '개인정보 수집 및 이용에 동의해야 가입할 수 있습니다.';
+    }
+    if (eE || eP || eP2 || eA) { this.setState({ errEmail: eE, errPw: eP, errPw2: eP2, errAgree: eA, authNotice: '' }); return; }
+
+    const acc = this.accounts();
+    if (sc === 'reset') {
+      if (!acc[em]) { this.setState({ errEmail: '가입되지 않은 이메일입니다.', authNotice: '' }); return; }
+      this.setState({ errEmail: '', authNotice: em + ' 로 재설정 메일을 보냈습니다. 메일함을 확인하세요.' });
+      return;
+    }
+    if (sc === 'signup') {
+      if (acc[em]) { this.setState({ errEmail: '이미 가입된 이메일입니다.', errPw: '', errPw2: '', errAgree: '' }); return; }
+      acc[em] = s.pw; this.saveAccounts(acc);
+    } else {
+      if (!acc[em]) { this.setState({ errEmail: '존재하지 않는 계정입니다.', errPw: '', authNotice: '' }); return; }
+      if (acc[em] !== s.pw) { this.setState({ errEmail: '', errPw: '비밀번호가 일치하지 않습니다.', authNotice: '' }); return; }
+    }
+    this.setState({ errEmail: '', errPw: '', errPw2: '', errAgree: '', authNotice: '', agree: false,
+      loggedEmail: em, screen: 'app', pw: '', pw2: '' });
+  }
+
+  renderVals() {
+    const s = this.state, R = s.result;
+    const P = (id) => () => this.setState({ screen: id, errEmail: '', errPw: '', errPw2: '', errAgree: '', authNotice: '' });
+    const tab = (id, label) => {
+      const on = s.screen === id;
+      return { label, go: P(id), bc: on ? '#9184d9' : 'rgba(233,233,237,.14)', fg: on ? '#9184d9' : 'rgba(233,233,237,.6)', bg: on ? 'rgba(145,132,217,.12)' : 'transparent' };
+    };
+    const vtab = (id, label) => {
+      const on = s.view === id;
+      return { label, go: () => this.setState({ view: id }), bc: on ? '#9184d9' : 'rgba(233,233,237,.14)', fg: on ? '#9184d9' : 'rgba(233,233,237,.6)', bg: on ? 'rgba(145,132,217,.12)' : 'transparent' };
+    };
+    const mobile = s.view === 'mobile';
+    const isAuth = s.screen === 'login' || s.screen === 'signup' || s.screen === 'reset';
+
+    const titles = { login: '로그인', signup: '회원가입', reset: '비밀번호 재설정' };
+    const subs = {
+      login: '실험 데이터의 검량선과 통계 분석을 한 화면에서 처리합니다.',
+      reset: '가입한 이메일 주소로 재설정 링크를 보냅니다.',
+      signup: '이메일과 비밀번호만으로 바로 시작할 수 있습니다.'
+    };
+    const ctas = { login: '로그인', signup: '가입하기', reset: '재설정 메일 보내기' };
+    const links = s.screen === 'login'
+      ? [{ pre: '계정이 없으신가요?', label: '회원가입', go: P('signup') }, { pre: '', label: '비밀번호를 잊으셨나요?', go: P('reset') }]
+      : [{ pre: '이미 계정이 있으신가요?', label: '로그인', go: P('login') }];
+
+    const c = (k) => s.copied[k];
+
+    const numDefs = [
+      ['C', () => this.setState({ calcExpr: '', calcOut: '0', calcErr: false }), 'util', '14px'],
+      ['⌫', () => this.back(), 'util', '15px'],
+      ['(', () => this.push('('), 'op'],
+      [')', () => this.push(')'), 'op'],
+      ['7', () => this.push('7'), 'num'], ['8', () => this.push('8'), 'num'], ['9', () => this.push('9'), 'num'],
+      ['÷', () => this.push('/'), 'op', '17px'],
+      ['4', () => this.push('4'), 'num'], ['5', () => this.push('5'), 'num'], ['6', () => this.push('6'), 'num'],
+      ['×', () => this.push('*'), 'op', '17px'],
+      ['1', () => this.push('1'), 'num'], ['2', () => this.push('2'), 'num'], ['3', () => this.push('3'), 'num'],
+      ['−', () => this.push('-'), 'op', '17px'],
+      ['0', () => this.push('0'), 'num'], ['.', () => this.push('.'), 'num'],
+      ['±', () => this.push('-'), 'util', '15px'],
+      ['+', () => this.push('+'), 'op', '17px']
+    ];
+    const funcDefs = [
+      ['sin', () => this.push('sin('), 'op', '13px'], ['cos', () => this.push('cos('), 'op', '13px'],
+      ['tan', () => this.push('tan('), 'op', '13px'], ['√', () => this.push('sqrt('), 'op', '15px'],
+      ['ln', () => this.push('ln('), 'op', '13px'], ['log', () => this.push('log('), 'op', '13px'],
+      ['xʸ', () => this.push('^'), 'op', '14px'], ['x!', () => this.push('!'), 'op', '14px'],
+      ['π', () => this.push('π'), 'op', '15px'], ['e', () => this.push('E'), 'op', '15px'],
+      ['1/x', () => this.push('^-1'), 'op', '13px'], ['x²', () => this.push('^2'), 'op', '14px'],
+      ['M+', () => this.memOp('+'), 'util', '13px'], ['M−', () => this.memOp('-'), 'util', '13px'],
+      ['MR', () => this.memOp('r'), 'util', '13px'], ['MC', () => this.memOp('c'), 'util', '13px']
+    ];
+
+    const rows = s.rows.map((r, i) => {
+      const badX = r.x.trim() !== '' && !isFinite(parseFloat(r.x));
+      const badY = r.y.trim() !== '' && !isFinite(parseFloat(r.y));
+      const half = (r.x.trim() === '') !== (r.y.trim() === '');
+      return {
+        no: i + 1, x: r.x, y: r.y,
+        xb: badX ? '#b5abfc' : (half && r.x.trim() === '' ? 'rgba(181,171,252,.4)' : 'rgba(233,233,237,.16)'),
+        yb: badY ? '#b5abfc' : (half && r.y.trim() === '' ? 'rgba(181,171,252,.4)' : 'rgba(233,233,237,.16)'),
+        setX: (e) => this.setCell(i, 'x', e.target.value),
+        setY: (e) => this.setCell(i, 'y', e.target.value),
+        pasteX: (e) => this.handlePaste(e, i, 'x'),
+        pasteY: (e) => this.handlePaste(e, i, 'y'),
+        keyX: (e) => this.cellKey(e, i, 'x'),
+        keyY: (e) => this.cellKey(e, i, 'y'),
+        del: () => this.delRow(i)
+      };
+    });
+
+    const out = {
+      screenTabs: s.loggedEmail
+        ? [tab('app', 'Eg-Cal'), { label: '로그아웃', go: () => this.logout(), bc: 'rgba(233,233,237,.16)', fg: 'rgba(233,233,237,.62)', bg: 'transparent' }]
+        : [tab('login', '로그인'), tab('signup', '회원가입'), tab('reset', '비밀번호 재설정')],
+      viewTabs: [vtab('desktop', '데스크톱'), vtab('mobile', '모바일')],
+      shellMax: mobile ? '412px' : '1240px',
+      shellBorder: mobile ? '1px solid #3f424d' : 'none',
+      shellRadius: mobile ? '26px' : '0px',
+      shellShadow: mobile ? '0 16px 40px rgba(0,0,0,.65)' : 'none',
+      shellPad: mobile ? '22px 14px 40px' : '0px',
+
+      isAuth, isApp: s.screen === 'app', is404: s.screen === '404',
+      authTitle: titles[s.screen] || '', authSub: subs[s.screen] || '', authCta: ctas[s.screen] || '',
+      needsPw: s.screen !== 'reset', needsPw2: s.screen === 'signup',
+      email: s.email, pw: s.pw, pw2: s.pw2,
+      errEmail: s.errEmail, errPw: s.errPw, errPw2: s.errPw2, authNotice: s.authNotice,
+      emailBorder: s.errEmail ? '#b5abfc' : 'rgba(233,233,237,.16)',
+      pwBorder: s.errPw ? '#b5abfc' : 'rgba(233,233,237,.16)',
+      pw2Border: s.errPw2 ? '#b5abfc' : 'rgba(233,233,237,.16)',
+      onEmail: (e) => this.setState({ email: e.target.value }),
+      onPw: (e) => this.setState({ pw: e.target.value }),
+      onPw2: (e) => this.setState({ pw2: e.target.value }),
+      onAuthKey: (e) => { if (e.key === 'Enter') this.submitAuth(); },
+      onAuthSubmit: () => this.submitAuth(),
+      authLinks: links,
+      needsAgree: s.screen === 'signup',
+      agree: s.agree,
+      onAgree: (e) => this.setState({ agree: e.target.checked, errAgree: '' }),
+      agreeBox: s.errAgree ? '#b5abfc' : 'rgba(233,233,237,.28)',
+      errAgree: s.errAgree,
+      userEmail: s.loggedEmail || 'mercury225@naver.com',
+      onLogout: () => this.logout(),
+
+      angleMode: s.deg ? 'DEG' : 'RAD',
+      toggleDeg: () => this.setState(st => ({ deg: !st.deg })),
+      memActive: s.mem !== 0, memText: this.trimNum(s.mem),
+      calcHint: '키보드 입력 가능',
+      calcExpr: s.calcExpr || ' ',
+      calcOut: s.calcOut,
+      calcOutColor: s.calcErr ? '#b5abfc' : '#e9e9ed',
+      numKeys: this.keyList(numDefs), funcKeys: this.keyList(funcDefs),
+      pressEq: () => this.evaluate(),
+
+      tableRows: rows,
+      rowCountText: s.rows.length + '행 · X, Y 2열',
+      tableWarn: s.tableWarn,
+      addRow: () => this.addRow(), clearRows: () => this.clearRows(), loadSample: () => this.loadSample(),
+      runCompute: () => this.compute(),
+
+      hasResult: !!R, noResult: !R, emptyMsg: s.emptyMsg,
+      go404: () => this.setState({ screen: s.loggedEmail ? 'app' : 'login' }),
+      go404Label: s.loggedEmail ? '메인 도구로 이동' : '로그인 페이지로 이동'
+    };
+
+    if (R) {
+      const f = (v, d) => this.f(v, d);
+      const sign = R.a >= 0 ? '+' : '−';
+      out.eq = 'y = ' + f(R.b, 4) + ' x ' + sign + ' ' + f(Math.abs(R.a), 4);
+      out.n = R.n; out.dfRes = R.dfRes;
+      out.metrics = [
+        { k: '결정계수 R²', v: f(R.R2, 5), en: 'R-squared' },
+        { k: '수정 R²', v: f(R.adjR2, 5), en: 'adjusted R²' },
+        { k: '상관계수 r', v: f(R.r, 5), en: 'Pearson r' },
+        { k: '잔차표준편차 Syx', v: f(R.Syx, 4), en: 'residual SD' },
+        { k: 'LOD', v: f(R.LOD, 4), en: 'limit of detection' },
+        { k: 'LOQ', v: f(R.LOQ, 4), en: 'limit of quantitation' },
+        { k: '회수율', v: this.f(R.recovery, 2) + ' %', en: 'recovery' },
+        { k: '%RSD', v: this.f(R.rsd, 2) + ' %', en: 'relative SD' },
+        { k: 't 통계량', v: f(R.tB, 3), en: 't-statistic (slope)' },
+        { k: 'p 값', v: this.fp(R.pB), en: 'p-value (slope)' }
+      ];
+      out.ciRows = [
+        { name: '기울기 (slope)', est: f(R.b, 5), se: f(R.seB, 5), lo: f(R.b - R.tc * R.seB, 5), hi: f(R.b + R.tc * R.seB, 5) },
+        { name: '절편 (intercept)', est: f(R.a, 5), se: f(R.seA, 5), lo: f(R.a - R.tc * R.seA, 5), hi: f(R.a + R.tc * R.seA, 5) }
+      ];
+      out.anovaRows = [
+        { src: '회귀 (regression)', df: 1, ss: f(R.SSR, 4), ms: f(R.SSR, 4), f: f(R.F, 3), p: this.fp(R.pF) },
+        { src: '잔차 (residual)', df: R.dfRes, ss: f(R.SSE, 4), ms: f(R.MSE, 5), f: '—', p: '—' },
+        { src: '전체 (total)', df: R.n - 1, ss: f(R.SST, 4), ms: '—', f: '—', p: '—' }
+      ];
+      const verdict = (p, okText, badText) => {
+        if (!isFinite(p)) return { verdict: '산출 불가', vbg: '#3f424d', vfg: '#e4e7f5' };
+        return p >= 0.05 ? { verdict: okText, vbg: '#423a6a', vfg: '#e7e5fe' } : { verdict: badText, vbg: '#5d5294', vfg: '#f5f4ff' };
+      };
+      const tr = [];
+      tr.push({ name: '회귀 유의성 검정', en: 'F-test of regression', stat: 'F = ' + f(R.F, 3) + ' (df 1, ' + R.dfRes + ')', p: this.fp(R.pF),
+        vbg: R.pF < 0.05 ? '#423a6a' : '#3f424d', vfg: '#e7e5fe', verdict: R.pF < 0.05 ? '회귀 유의' : '유의하지 않음' });
+      tr.push({ name: '기울기 검정 (H₀: b = 0)', en: 't-test, slope', stat: 't = ' + f(R.tB, 3) + ' (df ' + R.dfRes + ')', p: this.fp(R.pB),
+        vbg: R.pB < 0.05 ? '#423a6a' : '#3f424d', vfg: '#e7e5fe', verdict: R.pB < 0.05 ? '기울기 유의' : '유의하지 않음' });
+      tr.push({ name: '절편 검정 (H₀: a = 0)', en: 't-test, intercept', stat: 't = ' + f(R.tA, 3) + ' (df ' + R.dfRes + ')', p: this.fp(R.pA),
+        vbg: R.pA < 0.05 ? '#5d5294' : '#423a6a', vfg: '#f5f4ff', verdict: R.pA < 0.05 ? '절편 0과 유의하게 다름' : '절편 0과 차이 없음' });
+      tr.push({ name: '상관계수 검정 (H₀: ρ = 0)', en: 't-test, Pearson r', stat: 't = ' + f(R.tR, 3) + ' (df ' + R.dfRes + ')', p: this.fp(R.pR),
+        vbg: R.pR < 0.05 ? '#423a6a' : '#3f424d', vfg: '#e7e5fe', verdict: R.pR < 0.05 ? '상관 유의' : '유의하지 않음' });
+      tr.push(Object.assign({ name: '적합결여 검정', en: 'Lack-of-fit test', stat: R.lof ? 'F = ' + f(R.lof.F, 3) + ' (df ' + R.lof.df + ')' : '반복 측정 필요', p: R.lof ? this.fp(R.lof.p) : '—' },
+        verdict(R.lof ? R.lof.p : NaN, '선형 모형 적합', '적합결여 의심')));
+      tr.push(Object.assign({ name: '등분산성 검정', en: "Levene's test", stat: R.lev ? 'W = ' + f(R.lev.W, 3) + ' (df ' + R.lev.df + ')' : '산출 불가 — 수준별 3회 이상 반복 필요', p: R.lev ? this.fp(R.lev.p) : '—' },
+        verdict(R.lev ? R.lev.p : NaN, '등분산 가정 유지', '등분산 위반 의심')));
+      tr.push(Object.assign({ name: '정규성 검정 (잔차)', en: "Shapiro-Francia W′", stat: 'W′ = ' + f(R.Wsf, 4), p: this.fp(R.pSF) },
+        verdict(R.pSF, '정규성 유지', '정규성 위반 의심')));
+      tr.push(Object.assign({ name: '이상치 검정', en: "Grubbs' test", stat: 'G = ' + f(R.G, 3), p: this.fp(R.pG) },
+        verdict(R.pG, '이상치 없음', '이상치 의심')));
+      tr.push({ name: '영향점 진단', en: "Cook's distance (max)", stat: 'D = ' + f(R.cookMax, 4), p: '—',
+        vbg: R.cookMax > 1 ? '#5d5294' : '#423a6a', vfg: '#f5f4ff', verdict: R.cookMax > 1 ? '영향점 검토 필요' : '기준(1) 이내' });
+      tr.push({ name: '잔차 자기상관 검정', en: 'Durbin-Watson', stat: 'd = ' + f(R.DW, 3), p: '—',
+        vbg: (R.DW > 1.5 && R.DW < 2.5) ? '#423a6a' : '#5d5294', vfg: '#f5f4ff',
+        verdict: !isFinite(R.DW) ? '산출 불가' : (R.DW > 1.5 && R.DW < 2.5) ? '자기상관 없음' : (R.DW <= 1.5 ? '양의 자기상관 의심' : '음의 자기상관 의심') });
+      out.testRows = tr;
+
+      out.fit = R.charts.fit; out.resid = R.charts.resid; out.box = R.charts.box; out.ind = R.charts.ind; out.intv = R.charts.intv;
+      const scaleTab = (on, label, v) => ({
+        label, go: () => this.setLog(v),
+        bc: on ? '#9184d9' : 'rgba(233,233,237,.16)',
+        fg: on ? '#9184d9' : 'rgba(233,233,237,.55)',
+        bg: on ? 'rgba(145,132,217,.12)' : 'transparent'
+      });
+      const lgOn = s.logX && R.logOk;
+      out.scaleTabs = R.logOk
+        ? [scaleTab(!lgOn, '선형 X', false), scaleTab(lgOn, 'log X', true)]
+        : [scaleTab(true, '선형 X', false)];
+      out.scaleNote = R.logOk ? (lgOn ? 'X 축 log₁₀ 변환' : '') : 'X ≤ 0 포함 — log 변환 불가';
+      out.dlFit = () => this.png('ch-fit', 'regression-fit');
+      out.dlResid = () => this.png('ch-resid', 'residual-plot');
+      out.dlBox = () => this.png('ch-box', 'box-plot');
+      out.dlInd = () => this.png('ch-ind', 'individual-value-plot');
+      out.dlInt = () => this.png('ch-int', 'interval-plot');
+
+      const ciT = [['항목', '추정값', '표준오차', '95% 하한', '95% 상한']].concat(out.ciRows.map(r => [r.name, r.est, r.se, r.lo, r.hi]));
+      const anT = [['요인', 'df', 'SS', 'MS', 'F', 'p']].concat(out.anovaRows.map(r => [r.src, r.df, r.ss, r.ms, r.f, r.p]));
+      const tsT = [['검정', '통계량', 'p', '판정']].concat(tr.map(r => [r.name + ' / ' + r.en, r.stat, r.p, r.verdict]));
+      const mT = [['항목', '값']].concat(out.metrics.map(m => [m.k + ' (' + m.en + ')', m.v]));
+      out.copyEq = () => this.copy('eq', out.eq);
+      out.copyEqLabel = c('eq') ? '복사됨' : '수식 복사';
+      out.copyCi = () => this.copy('ci', this.tsv(ciT), this.htmlTable(ciT));
+      out.copyCiLabel = c('ci') ? '복사됨' : '표 복사';
+      out.copyAnova = () => this.copy('an', this.tsv(anT), this.htmlTable(anT));
+      out.copyAnovaLabel = c('an') ? '복사됨' : '표 복사';
+      out.copyTests = () => this.copy('ts', this.tsv(tsT), this.htmlTable(tsT));
+      out.copyTestsLabel = c('ts') ? '복사됨' : '표 복사';
+      out.copyAll = () => this.copy('all', out.eq + '\n\n' + this.tsv(mT) + '\n\n' + this.tsv(ciT) + '\n\n' + this.tsv(anT) + '\n\n' + this.tsv(tsT),
+        '<p>' + out.eq + '</p>' + this.htmlTable(mT) + this.htmlTable(ciT) + this.htmlTable(anT) + this.htmlTable(tsT));
+      out.copyAllLabel = c('all') ? '전체 복사됨' : '전체 결과 복사';
+    }
+    return out;
+  }
+
+  setLog(v) {
+    this.setState(st => {
+      if (!st.result) return { logX: v };
+      const R = Object.assign({}, st.result);
+      R.charts = this.charts(R, v && R.logOk);
+      return { logX: v, result: R };
+    });
+  }
+  memOp(op) {
+    const cur = parseFloat(this.state.calcOut);
+    if (op === 'c') { this.setState({ mem: 0 }); return; }
+    if (op === 'r') { this.push(this.trimNum(this.state.mem)); return; }
+    if (!isFinite(cur)) return;
+    this.setState(st => ({ mem: op === '+' ? st.mem + cur : st.mem - cur }));
+  }
+}
+</script>
+</body>
+</html>
