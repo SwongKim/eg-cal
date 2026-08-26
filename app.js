@@ -879,6 +879,16 @@ function CopyButton({ label, onClick }) {
     {copied ? "복사됨" : label}
   </button>;
 }
+function SaveButton({ onSave }) {
+  const [state, setState] = useState("idle"); // idle | saving | saved | error
+  return <button className="btn btn-secondary" disabled={state === "saving"} onClick={async () => {
+    setState("saving");
+    try { await onSave(); setState("saved"); } catch (e) { setState("error"); }
+    setTimeout(() => setState("idle"), 1600);
+  }} style={{ fontSize: 12, padding: "4px 10px" }}>
+    {state === "saving" ? "저장 중…" : state === "saved" ? "저장됨" : state === "error" ? "저장 실패" : "저장"}
+  </button>;
+}
 function ChartCard({ title, subtitle, id, onDownload, children, extra, caption }) {
   return (
     <div style={{ flex: "1 1 380px", minWidth: 300, background: "#232532", borderRadius: 14, padding: "clamp(13px,2vw,18px)", boxShadow: "0 0 0 1px #3f424d" }}>
@@ -906,7 +916,7 @@ function ScaleToggle({ on, setOn, disabledHint }) {
     </>
   );
 }
-function ResultsPanel({ result, tableWarn, emptyMsg, logX, setLogX, logY, setLogY }) {
+function ResultsPanel({ result, tableWarn, emptyMsg, logX, setLogX, logY, setLogY, onSave }) {
   const R = result;
   const charts = useMemo(() => (R ? buildCharts(R, logX && R.logOk, logY) : null), [R, logX, logY]);
 
@@ -1123,12 +1133,13 @@ function ResultsPanel({ result, tableWarn, emptyMsg, logX, setLogX, logY, setLog
 
       <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap", padding: "14px 16px", borderRadius: 14, background: "#1c1e2c", boxShadow: "0 0 0 1px #3f424d" }}>
         <span style={{ fontSize: 12, color: "rgba(233,233,237,.5)", maxWidth: "52ch" }}>수치·통계표는 서식 있는 표와 plain text 로, 수식은 텍스트로 복사됩니다. 가중회귀(1/x, 1/x²)와 전체 리포트 파일 내보내기는 v2 예정입니다.</span>
-        <div style={{ marginLeft: "auto" }}>
+        <div style={{ marginLeft: "auto", display: "flex", gap: 8 }}>
           <CopyButton label="전체 결과 복사" onClick={(done) => copy(
             eq + "\n\n" + tsv(mT) + "\n\n" + tsv(ciT) + "\n\n" + tsv(anT) + "\n\n" + tsv(tsT),
             "<p>" + eq + "</p>" + htmlTable(mT) + htmlTable(ciT) + htmlTable(anT) + htmlTable(tsT),
             done
           )} />
+          {onSave && <SaveButton onSave={onSave} />}
         </div>
       </div>
     </div>
@@ -1136,29 +1147,96 @@ function ResultsPanel({ result, tableWarn, emptyMsg, logX, setLogX, logY, setLog
 }
 
 /* ============================================================
-   14. 메인 도구 페이지 (/app)
+   14. 기록 열람 화면
    ============================================================ */
-function AppScreen({ userEmail, onLogout }) {
+function formatHistoryLabel(createdAt) {
+  let d;
+  if (createdAt && typeof createdAt.toDate === "function") d = createdAt.toDate();
+  else if (createdAt instanceof Date) d = createdAt;
+  else if (createdAt) d = new Date(createdAt);
+  else return "";
+  if (!d || isNaN(d.getTime())) return "";
+  const p = (n) => String(n).padStart(2, "0");
+  return d.getFullYear() + "-" + p(d.getMonth() + 1) + "-" + p(d.getDate()) + " " + p(d.getHours()) + ":" + p(d.getMinutes());
+}
+function HistoryScreen({ history, onSelect }) {
+  const slots = Array.from({ length: window.EgCalHistory ? window.EgCalHistory.HISTORY_LIMIT : 10 }, (_, i) => history[i] || null);
+  return (
+    <section>
+      <span style={{ fontSize: 10, letterSpacing: ".1em", textTransform: "uppercase", color: "#9184d9" }}>기록 · History</span>
+      <h3 style={{ fontSize: "clamp(20px,2.4vw,25px)", margin: "0 0 6px" }}>저장된 결과 기록</h3>
+      <p style={{ fontSize: 13, color: "rgba(233,233,237,.55)", margin: "0 0 18px", maxWidth: "60ch" }}>
+        산출 결과 화면의 "저장" 버튼을 누르면 이 계정에 최신순으로 최대 {window.EgCalHistory ? window.EgCalHistory.HISTORY_LIMIT : 10}개까지 보관됩니다. 항목을 누르면 그 시점의 데이터와 결과를 다시 확인할 수 있습니다.
+      </p>
+      <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+        {slots.map((rec, i) => (
+          <button key={i} className="btn" disabled={!rec} onClick={() => rec && onSelect(rec)}
+            style={{
+              minHeight: 52, width: "100%", justifyContent: "flex-start", padding: "0 18px", fontSize: 14,
+              background: "#232532", boxShadow: "0 0 0 1px #3f424d", borderColor: "transparent",
+              color: rec ? "#e9e9ed" : "rgba(233,233,237,.4)", fontVariantNumeric: "tabular-nums",
+            }}>
+            {rec ? formatHistoryLabel(rec.createdAt) : "데이터 없음"}
+          </button>
+        ))}
+      </div>
+      {!window.EgCalHistory?.isConfigured && (
+        <p style={{ marginTop: 18, fontSize: 11.5, color: "rgba(233,233,237,.4)" }}>
+          ⚠ firebase-config.js 에 Firebase 프로젝트 설정을 입력하고 Firestore Database 를 생성해야 기록 저장이 동작합니다.
+        </p>
+      )}
+    </section>
+  );
+}
+
+/* ============================================================
+   15. 메인 도구 페이지 (/app)
+   ============================================================ */
+function AppScreen({ userEmail, userId, onLogout }) {
+  const [view, setView] = useState("main"); // main | history
   const [rows, setRows] = useState(sampleRows());
   const [result, setResult] = useState(null);
   const [tableWarn, setTableWarn] = useState("");
   const [emptyMsg, setEmptyMsg] = useState("데이터를 입력하고 확인을 누르면 결과가 산출됩니다.");
   const [logX, setLogX] = useState(false);
   const [logY, setLogY] = useState(false);
+  const [history, setHistory] = useState([]);
 
-  function compute() {
-    const r = runRegression(rows);
+  function compute(withRows) {
+    const r = runRegression(withRows || rows);
     setResult(r.result); setTableWarn(r.tableWarn); setEmptyMsg(r.emptyMsg);
   }
   useEffect(() => { compute(); }, []); // eslint-disable-line
+
+  const refreshHistory = useCallback(() => {
+    if (!userId || !window.EgCalHistory) return;
+    window.EgCalHistory.list(userId).then(setHistory).catch(() => {});
+  }, [userId]);
+  useEffect(() => { refreshHistory(); }, [refreshHistory]);
+
+  async function saveCurrentResult() {
+    if (!result || !userId || !window.EgCalHistory) throw new Error("cannot-save");
+    const timeout = new Promise((_, reject) => setTimeout(() => reject(new Error("save-timeout")), 10000));
+    await Promise.race([window.EgCalHistory.save(userId, { rows, logX, logY }), timeout]);
+    refreshHistory();
+  }
+
+  function openHistoryRecord(rec) {
+    setRows(rec.rows);
+    setLogX(!!rec.logX);
+    setLogY(!!rec.logY);
+    compute(rec.rows);
+    setView("main");
+  }
 
   return (
     <div style={{ animation: "noct-in .28s ease" }}>
       <div style={{ position: "sticky", top: 0, zIndex: 20, background: "#161826" }}>
         <div style={{ display: "flex", alignItems: "center", gap: 12, flexWrap: "wrap", padding: "12px clamp(14px,3vw,26px)" }}>
-          <div style={{ display: "flex", alignItems: "center", gap: 8, marginRight: "auto" }}>
+          <button className="btn" onClick={() => setView("main")} style={{ display: "flex", alignItems: "center", gap: 8, marginRight: "auto", padding: 0, color: "#e9e9ed" }}>
             <Logo /><span style={{ fontSize: 15, fontWeight: 500 }}>Eg-Cal : 공학용 연산 도우미</span>
-          </div>
+          </button>
+          <button className="btn btn-secondary" onClick={() => setView("history")} style={{ fontSize: 12.5, padding: "5px 11px" }}>기록</button>
           <span className="tag tag-neutral" style={{ fontSize: 10.5 }}>{userEmail}</span>
           <button className="btn btn-secondary" onClick={onLogout} style={{ fontSize: 12.5, padding: "5px 11px" }}>로그아웃</button>
         </div>
@@ -1166,32 +1244,38 @@ function AppScreen({ userEmail, onLogout }) {
       </div>
 
       <div style={{ padding: "clamp(18px,3vw,34px) clamp(14px,3vw,26px) 80px", display: "flex", flexDirection: "column", gap: "clamp(28px,4vw,46px)" }}>
-        <section>
-          <span style={{ fontSize: 10, letterSpacing: ".1em", textTransform: "uppercase", color: "#9184d9" }}>01 · Calculator</span>
-          <h3 style={{ fontSize: "clamp(20px,2.4vw,25px)", margin: "0 0 6px" }}>공학용 계산기</h3>
-          <p style={{ fontSize: 13, color: "rgba(233,233,237,.55)", margin: "0 0 18px", maxWidth: "56ch" }}>마우스 클릭과 키보드 입력을 함께 지원합니다. 계산 결과는 아래 표에 직접 입력하세요.</p>
-          <Calculator />
-        </section>
+        {view === "history" ? (
+          <HistoryScreen history={history} onSelect={openHistoryRecord} />
+        ) : (
+          <>
+            <section>
+              <span style={{ fontSize: 10, letterSpacing: ".1em", textTransform: "uppercase", color: "#9184d9" }}>01 · Calculator</span>
+              <h3 style={{ fontSize: "clamp(20px,2.4vw,25px)", margin: "0 0 6px" }}>공학용 계산기</h3>
+              <p style={{ fontSize: 13, color: "rgba(233,233,237,.55)", margin: "0 0 18px", maxWidth: "56ch" }}>마우스 클릭과 키보드 입력을 함께 지원합니다. 계산 결과는 아래 표에 직접 입력하세요.</p>
+              <Calculator />
+            </section>
 
-        <section>
-          <span style={{ fontSize: 10, letterSpacing: ".1em", textTransform: "uppercase", color: "#9184d9" }}>02 · Data input</span>
-          <h3 style={{ fontSize: "clamp(20px,2.4vw,25px)", margin: "2px 0 6px" }}>데이터 입력</h3>
-          <p style={{ fontSize: 13, color: "rgba(233,233,237,.55)", margin: "0 0 16px", maxWidth: "60ch" }}>X(농도) · Y(신호) 2열 구조입니다. 엑셀에서 복사한 여러 행을 셀에 바로 붙여넣을 수 있고, 행이 부족하면 자동으로 추가됩니다. Tab · Enter 로 셀 사이를 이동합니다.</p>
-          <DataTable rows={rows} setRows={setRows} tableWarn={tableWarn} onCompute={compute} />
-        </section>
+            <section>
+              <span style={{ fontSize: 10, letterSpacing: ".1em", textTransform: "uppercase", color: "#9184d9" }}>02 · Data input</span>
+              <h3 style={{ fontSize: "clamp(20px,2.4vw,25px)", margin: "2px 0 6px" }}>데이터 입력</h3>
+              <p style={{ fontSize: 13, color: "rgba(233,233,237,.55)", margin: "0 0 16px", maxWidth: "60ch" }}>X(농도) · Y(신호) 2열 구조입니다. 엑셀에서 복사한 여러 행을 셀에 바로 붙여넣을 수 있고, 행이 부족하면 자동으로 추가됩니다. Tab · Enter 로 셀 사이를 이동합니다.</p>
+              <DataTable rows={rows} setRows={setRows} tableWarn={tableWarn} onCompute={() => compute()} />
+            </section>
 
-        <section>
-          <span style={{ fontSize: 10, letterSpacing: ".1em", textTransform: "uppercase", color: "#9184d9" }}>03 · Results</span>
-          <h3 style={{ fontSize: "clamp(20px,2.4vw,25px)", margin: "2px 0 6px" }}>산출 결과</h3>
-          <ResultsPanel result={result} tableWarn={tableWarn} emptyMsg={emptyMsg} logX={logX} setLogX={setLogX} logY={logY} setLogY={setLogY} />
-        </section>
+            <section>
+              <span style={{ fontSize: 10, letterSpacing: ".1em", textTransform: "uppercase", color: "#9184d9" }}>03 · Results</span>
+              <h3 style={{ fontSize: "clamp(20px,2.4vw,25px)", margin: "2px 0 6px" }}>산출 결과</h3>
+              <ResultsPanel result={result} tableWarn={tableWarn} emptyMsg={emptyMsg} logX={logX} setLogX={setLogX} logY={logY} setLogY={setLogY} onSave={saveCurrentResult} />
+            </section>
+          </>
+        )}
       </div>
     </div>
   );
 }
 
 /* ============================================================
-   15. 404
+   16. 404
    ============================================================ */
 function NotFoundScreen({ loggedIn, navigate }) {
   return (
@@ -1210,7 +1294,7 @@ function NotFoundScreen({ loggedIn, navigate }) {
 }
 
 /* ============================================================
-   16. 앱 루트 — 라우팅 + 인증 가드 (Sitemap.md 라우팅 표 참고)
+   17. 앱 루트 — 라우팅 + 인증 가드 (Sitemap.md 라우팅 표 참고)
    ============================================================ */
 function App() {
   const { path, navigate } = useRouter();
@@ -1232,7 +1316,7 @@ function App() {
   if (path === "/reset-password") return <AuthScreen mode="reset" navigate={navigate} />;
   if (path === "/app") {
     if (!user) return null;
-    return <AppScreen userEmail={user.email} onLogout={() => window.EgCalAuth.logout()} />;
+    return <AppScreen userEmail={user.email} userId={user.uid} onLogout={() => window.EgCalAuth.logout()} />;
   }
   if (path === "/") return null;
   return <NotFoundScreen loggedIn={!!user} navigate={navigate} />;
