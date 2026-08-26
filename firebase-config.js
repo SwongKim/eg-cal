@@ -88,7 +88,7 @@ window.EgCalHistory = {
       const oldest = existing[existing.length - 1];
       if (oldest) await deleteDoc(doc(db, "users", uid, "history", oldest.id));
     }
-    const record = { rows: data.rows, logX: !!data.logX, logY: !!data.logY, createdAt: Timestamp.now() };
+    const record = { rows: data.rows, logX: !!data.logX, logY: !!data.logY, memo: String(data.memo || ""), createdAt: Timestamp.now() };
     const ref = await addDoc(collection(db, "users", uid, "history"), record);
     return { id: ref.id, ...record };
   },

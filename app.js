@@ -958,7 +958,7 @@ function ScaleToggle({ on, setOn, disabledHint }) {
     </>
   );
 }
-function ResultsPanel({ result, tableWarn, emptyMsg, logX, setLogX, logY, setLogY, onSave }) {
+function ResultsPanel({ result, tableWarn, emptyMsg, logX, setLogX, logY, setLogY, onSave, memo, setMemo }) {
   const R = result;
   const charts = useMemo(() => (R ? buildCharts(R, logX && R.logOk, logY) : null), [R, logX, logY]);
 
@@ -1187,6 +1187,10 @@ function ResultsPanel({ result, tableWarn, emptyMsg, logX, setLogX, logY, setLog
             "<p>" + eq + "</p>" + htmlTable(mT) + htmlTable(ciT) + htmlTable(anT) + htmlTable(tsT),
             done
           )} />
+          {onSave && (
+            <input className="input" value={memo} onChange={(e) => setMemo(e.target.value)}
+              placeholder="메모 (예: 3차 실험)" style={{ minHeight: 32, width: 180, fontSize: 12.5 }} />
+          )}
           {onSave && <SaveButton onSave={onSave} />}
         </div>
       </div>
@@ -1197,7 +1201,7 @@ function ResultsPanel({ result, tableWarn, emptyMsg, logX, setLogX, logY, setLog
 /* ============================================================
    15. 기록 열람 화면
    ============================================================ */
-function formatHistoryLabel(createdAt) {
+function formatHistoryLabel(createdAt, memo) {
   let d;
   if (createdAt && typeof createdAt.toDate === "function") d = createdAt.toDate();
   else if (createdAt instanceof Date) d = createdAt;
@@ -1205,7 +1209,8 @@ function formatHistoryLabel(createdAt) {
   else return "";
   if (!d || isNaN(d.getTime())) return "";
   const p = (n) => String(n).padStart(2, "0");
-  return d.getFullYear() + "-" + p(d.getMonth() + 1) + "-" + p(d.getDate()) + " " + p(d.getHours()) + ":" + p(d.getMinutes());
+  const stamp = d.getFullYear() + "-" + p(d.getMonth() + 1) + "-" + p(d.getDate()) + " " + p(d.getHours()) + ":" + p(d.getMinutes());
+  return memo && memo.trim() ? stamp + " : " + memo.trim() : stamp;
 }
 function HistoryScreen({ history, onSelect }) {
   const slots = Array.from({ length: window.EgCalHistory ? window.EgCalHistory.HISTORY_LIMIT : 10 }, (_, i) => history[i] || null);
@@ -1224,7 +1229,7 @@ function HistoryScreen({ history, onSelect }) {
               background: "#17233e", boxShadow: "0 0 0 1px #3f424d", borderColor: "transparent",
               color: rec ? "#e9e9ed" : "rgba(233,233,237,.4)", fontVariantNumeric: "tabular-nums",
             }}>
-            {rec ? formatHistoryLabel(rec.createdAt) : "데이터 없음"}
+            {rec ? formatHistoryLabel(rec.createdAt, rec.memo) : "데이터 없음"}
           </button>
         ))}
       </div>
@@ -1248,6 +1253,7 @@ function AppScreen({ userEmail, userId, onLogout }) {
   const [emptyMsg, setEmptyMsg] = useState("데이터를 입력하고 확인을 누르면 결과가 산출됩니다.");
   const [logX, setLogX] = useState(false);
   const [logY, setLogY] = useState(false);
+  const [memo, setMemo] = useState("");
   const [history, setHistory] = useState([]);
 
   function compute(withRows) {
@@ -1265,7 +1271,8 @@ function AppScreen({ userEmail, userId, onLogout }) {
   async function saveCurrentResult() {
     if (!result || !userId || !window.EgCalHistory) throw new Error("cannot-save");
     const timeout = new Promise((_, reject) => setTimeout(() => reject(new Error("save-timeout")), 10000));
-    await Promise.race([window.EgCalHistory.save(userId, { rows, logX, logY }), timeout]);
+    await Promise.race([window.EgCalHistory.save(userId, { rows, logX, logY, memo: memo.trim() }), timeout]);
+    setMemo("");
     refreshHistory();
   }
 
@@ -1273,6 +1280,7 @@ function AppScreen({ userEmail, userId, onLogout }) {
     setRows(rec.rows);
     setLogX(!!rec.logX);
     setLogY(!!rec.logY);
+    setMemo(rec.memo || "");
     compute(rec.rows);
     setView("main");
   }
@@ -1313,7 +1321,7 @@ function AppScreen({ userEmail, userId, onLogout }) {
             <section>
               <span style={{ fontSize: 10, letterSpacing: ".1em", textTransform: "uppercase", color: "#84d9d3" }}>03 · Results</span>
               <h3 style={{ fontSize: "clamp(20px,2.4vw,25px)", margin: "2px 0 6px" }}>산출 결과</h3>
-              <ResultsPanel result={result} tableWarn={tableWarn} emptyMsg={emptyMsg} logX={logX} setLogX={setLogX} logY={logY} setLogY={setLogY} onSave={saveCurrentResult} />
+              <ResultsPanel result={result} tableWarn={tableWarn} emptyMsg={emptyMsg} logX={logX} setLogX={setLogX} logY={logY} setLogY={setLogY} onSave={saveCurrentResult} memo={memo} setMemo={setMemo} />
             </section>
           </>
         )}
