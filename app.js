@@ -421,7 +421,7 @@ function captionBox(R) {
 function captionInd(R) {
   if (!isFinite(R.rsd)) return "수준별 반복 측정이 2회 미만이라 %RSD를 산출할 수 없습니다.";
   const grade = R.rsd < 2 ? "매우 우수한" : R.rsd < 5 ? "우수한" : R.rsd < 10 ? "양호한" : "개선이 필요한";
-  return "수준별 반복 측정값의 평균 %RSD = " + fmt(R.rsd, 2) + "% 로 " + grade + " 반복재현성을 보입니다. 각 인자에서 점들이 평균선(터콰이즈색)에 가까이 모여 있을수록 재현성이 좋다는 뜻입니다.";
+  return "수준별 반복 측정값의 평균 %RSD = " + fmt(R.rsd, 2) + "% 로 " + grade + " 반복재현성을 보입니다. 각 인자에서 점들이 평균선(민트색)에 가까이 모여 있을수록 재현성이 좋다는 뜻입니다.";
 }
 function captionInt(stats) {
   if (stats.length < 2) return "비교할 인자 수준이 2개 미만입니다.";
