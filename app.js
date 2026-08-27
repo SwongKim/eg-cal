@@ -659,11 +659,11 @@ function LandingScreen({ navigate, lang, onToggleLang, onGuest }) {
                   : "비회원으로 이용하시면 분석 기록의 저장과 열람이 불가능합니다. 그 외 기능은 동일하게 사용하실 수 있습니다."}
               </div>
               <div style={{ display: "flex", gap: 8, justifyContent: "flex-end" }}>
-                <button className="btn btn-secondary" onClick={() => setGuestAsk(false)} style={{ fontSize: 13, padding: "6px 14px" }}>
-                  {isEn ? "No" : "아니오"}
-                </button>
                 <button className="btn btn-primary" onClick={() => { setGuestAsk(false); onGuest(); }} style={{ fontSize: 13, padding: "6px 14px" }}>
                   {isEn ? "Yes" : "네"}
+                </button>
+                <button className="btn btn-secondary" onClick={() => setGuestAsk(false)} style={{ fontSize: 13, padding: "6px 14px" }}>
+                  {isEn ? "No" : "아니오"}
                 </button>
               </div>
             </div>
@@ -831,11 +831,11 @@ function AuthScreen({ mode, navigate, lang, onToggleLang, onGuest }) {
                   : "비회원으로 이용하시면 분석 기록의 저장과 열람이 불가능합니다. 그 외 기능은 동일하게 사용하실 수 있습니다."}
               </div>
               <div style={{ display: "flex", gap: 8, justifyContent: "flex-end" }}>
-                <button className="btn btn-secondary" onClick={() => setGuestAsk(false)} style={{ fontSize: 13, padding: "6px 14px" }}>
-                  {isEn ? "No" : "아니오"}
-                </button>
                 <button className="btn btn-primary" onClick={() => { setGuestAsk(false); onGuest(); }} style={{ fontSize: 13, padding: "6px 14px" }}>
                   {isEn ? "Yes" : "네"}
+                </button>
+                <button className="btn btn-secondary" onClick={() => setGuestAsk(false)} style={{ fontSize: 13, padding: "6px 14px" }}>
+                  {isEn ? "No" : "아니오"}
                 </button>
               </div>
             </div>
