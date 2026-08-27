@@ -36,7 +36,7 @@ const isConfigured = !String(firebaseConfig.apiKey).startsWith("YOUR_");
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
-const HISTORY_LIMIT = 10;
+const HISTORY_LIMIT = 30;
 
 const listeners = new Set();
 let lastUser = undefined;
@@ -68,7 +68,7 @@ window.EgCalAuth = {
   },
 };
 
-// 계정별 결과 저장 이력 — 사용자당 최신 10개까지만 유지 (users/{uid}/history 하위 컬렉션).
+// 계정별 결과 저장 이력 — 사용자당 최신 30개까지만 유지 (users/{uid}/history 하위 컬렉션).
 // Firestore 콘솔에서 해당 프로젝트의 Firestore Database 를 생성하고, 보안 규칙에서
 // 본인 uid 하위 문서만 읽고 쓸 수 있도록 설정해야 동작합니다.
 window.EgCalHistory = {

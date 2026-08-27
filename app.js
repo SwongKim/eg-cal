@@ -1356,11 +1356,12 @@ function HistoryScreen({ history, onSelect, lang, onWithdraw }) {
           ? <>Click "Save" on the results screen to keep up to {limit} most recent entries in this account. Click an entry to view that data and its results again.</>
           : <>산출 결과 화면의 "저장" 버튼을 누르면 이 계정에 최신순으로 최대 {limit}개까지 보관됩니다. 항목을 누르면 그 시점의 데이터와 결과를 다시 확인할 수 있습니다.</>}
       </p>
-      <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(3, minmax(0, 1fr))", gap: 10 }}>
         {slots.map((rec, i) => (
           <button key={i} className="btn" disabled={!rec} onClick={() => rec && onSelect(rec)}
             style={{
-              minHeight: 52, width: "100%", justifyContent: "flex-start", padding: "0 18px", fontSize: 14,
+              minHeight: 52, width: "100%", justifyContent: "flex-start", textAlign: "left",
+              padding: "8px 12px", fontSize: 12.5, lineHeight: 1.35, whiteSpace: "normal", overflowWrap: "anywhere",
               background: "#17233e", boxShadow: "0 0 0 1px #3f424d", borderColor: "transparent",
               color: rec ? "#e9e9ed" : "rgba(233,233,237,.4)", fontVariantNumeric: "tabular-nums",
             }}>
