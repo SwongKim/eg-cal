@@ -10,6 +10,9 @@ import {
   signInWithEmailAndPassword,
   sendPasswordResetEmail,
   signOut,
+  deleteUser,
+  reauthenticateWithCredential,
+  EmailAuthProvider,
 } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
 import {
   getFirestore,
@@ -65,6 +68,20 @@ window.EgCalAuth = {
   },
   async logout() {
     await signOut(auth);
+  },
+  // 계정 삭제. 마지막 로그인이 오래된 세션은 Firebase 가 재인증을 요구하므로
+  // auth/requires-recent-login 을 만나면 비밀번호를 받아 재인증한 뒤 다시 시도한다.
+  async deleteAccount(password) {
+    const u = auth.currentUser;
+    if (!u) throw new Error("not-authenticated");
+    try {
+      await deleteUser(u);
+      return;
+    } catch (e) {
+      if (!e || e.code !== "auth/requires-recent-login" || !password) throw e;
+    }
+    await reauthenticateWithCredential(u, EmailAuthProvider.credential(u.email, password));
+    await deleteUser(auth.currentUser);
   },
 };
 

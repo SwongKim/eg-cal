@@ -1387,22 +1387,10 @@ function formatHistoryLabel(createdAt, memo) {
   const stamp = d.getFullYear() + "-" + p(d.getMonth() + 1) + "-" + p(d.getDate()) + " " + p(d.getHours()) + ":" + p(d.getMinutes());
   return memo && memo.trim() ? stamp + " : " + memo.trim() : stamp;
 }
-function HistoryScreen({ history, onSelect, lang, onWithdraw }) {
+function HistoryScreen({ history, onSelect, lang }) {
   const isEn = lang === "en";
   const limit = window.EgCalHistory ? window.EgCalHistory.HISTORY_LIMIT : 10;
   const slots = Array.from({ length: limit }, (_, i) => history[i] || null);
-  const [confirmOpen, setConfirmOpen] = useState(false);
-  const [busy, setBusy] = useState(false);
-
-  async function confirmWithdraw() {
-    setBusy(true);
-    try {
-      await onWithdraw();
-    } finally {
-      setBusy(false);
-      setConfirmOpen(false);
-    }
-  }
 
   return (
     <section>
@@ -1431,31 +1419,6 @@ function HistoryScreen({ history, onSelect, lang, onWithdraw }) {
           {isEn ? "⚠ You must enter your Firebase project settings in firebase-config.js and create a Firestore Database for history saving to work." : "⚠ firebase-config.js 에 Firebase 프로젝트 설정을 입력하고 Firestore Database 를 생성해야 기록 저장이 동작합니다."}
         </p>
       )}
-      <div style={{ marginTop: 22, display: "flex", justifyContent: "flex-end" }}>
-        <button className="btn btn-secondary" onClick={() => setConfirmOpen(true)}
-          style={{ fontSize: 12.5, padding: "5px 11px", color: "#f0868b", borderColor: "#7a3a3d" }}>
-          {isEn ? "Delete Account" : "탈퇴"}
-        </button>
-      </div>
-      {confirmOpen && (
-        <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,.55)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 100, padding: 20 }}>
-          <div style={{ background: "#17233e", borderRadius: 14, padding: 22, maxWidth: 340, width: "100%", boxShadow: "0 0 0 1px #3f424d, 0 16px 40px rgba(0,0,0,.5)" }}>
-            <div style={{ fontSize: 15, fontWeight: 500, marginBottom: 8 }}>{isEn ? "Delete your account?" : "정말 탈퇴하시겠습니까?"}</div>
-            <div style={{ fontSize: 12.5, color: "rgba(233,233,237,.6)", marginBottom: 20, lineHeight: 1.5 }}>
-              {isEn ? "Your saved history will be permanently deleted and you'll be signed out. This cannot be undone." : "저장된 기록이 모두 삭제되고 로그아웃됩니다. 이 작업은 되돌릴 수 없습니다."}
-            </div>
-            <div style={{ display: "flex", gap: 8, justifyContent: "flex-end" }}>
-              <button className="btn btn-secondary" disabled={busy} onClick={() => setConfirmOpen(false)} style={{ fontSize: 13, padding: "6px 14px" }}>
-                {isEn ? "Cancel" : "취소"}
-              </button>
-              <button className="btn" disabled={busy} onClick={confirmWithdraw}
-                style={{ fontSize: 13, padding: "6px 14px", color: "#fff", background: "#c23b3f", borderColor: "#c23b3f" }}>
-                {busy ? (isEn ? "Deleting…" : "처리 중…") : (isEn ? "Delete Account" : "탈퇴")}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
     </section>
   );
 }
@@ -1475,6 +1438,15 @@ function AppScreen({ userEmail, userId, onLogout, lang, onToggleLang, navigate, 
   const [logY, setLogY] = useState(false);
   const [memo, setMemo] = useState("");
   const [history, setHistory] = useState([]);
+  const [wdStep, setWdStep] = useState(null); // null | "ask" | "confirm"
+  const [wdPw, setWdPw] = useState("");
+  const [wdNeedPw, setWdNeedPw] = useState(false);
+  const [wdErr, setWdErr] = useState("");
+  const [wdBusy, setWdBusy] = useState(false);
+
+  function closeWithdraw() {
+    setWdStep(null); setWdPw(""); setWdNeedPw(false); setWdErr(""); setWdBusy(false);
+  }
 
   function compute(withRows) {
     const r = runRegression(withRows || rows, lang);
@@ -1505,12 +1477,26 @@ function AppScreen({ userEmail, userId, onLogout, lang, onToggleLang, navigate, 
     setView("main");
   }
 
+  // 기록을 지운 뒤 계정 자체를 삭제한다. 계정을 남겨두면 탈퇴 후에도 로그인이 되므로
+  // 삭제에 실패하면 로그아웃하지 않고 사유를 그대로 보여준다.
   async function withdraw() {
-    if (userId && window.EgCalHistory && window.EgCalHistory.deleteAll) {
-      await window.EgCalHistory.deleteAll(userId);
+    setWdBusy(true); setWdErr("");
+    try {
+      if (userId && window.EgCalHistory && window.EgCalHistory.deleteAll) {
+        await window.EgCalHistory.deleteAll(userId);
+      }
+      await window.EgCalAuth.deleteAccount(wdPw);
+      closeWithdraw();
+      navigate("/");
+    } catch (ex) {
+      if (ex && ex.code === "auth/requires-recent-login") {
+        setWdNeedPw(true);
+        setWdErr(isEn ? "For security, enter your password to continue." : "보안을 위해 비밀번호를 입력해야 탈퇴를 계속할 수 있습니다.");
+      } else {
+        setWdErr(authErrorMessage(ex, lang));
+      }
+      setWdBusy(false);
     }
-    await window.EgCalAuth.logout();
-    navigate("/");
   }
 
   return (
@@ -1532,7 +1518,13 @@ function AppScreen({ userEmail, userId, onLogout, lang, onToggleLang, navigate, 
             style={{ fontSize: 12.5, padding: "5px 11px", cursor: guest ? "not-allowed" : undefined }}>
             {view === "history" ? (isEn ? "Main" : "메인") : (isEn ? "History" : "기록")}
           </button>
-          <span className="tag tag-neutral" style={{ fontSize: 10.5 }}>{guest ? (isEn ? "Guest" : "비회원") : userEmail}</span>
+          {guest ? (
+            <span className="tag tag-neutral" style={{ fontSize: 10.5 }}>{isEn ? "Guest" : "비회원"}</span>
+          ) : (
+            <button className="tag tag-neutral" onClick={() => setWdStep("ask")}
+              title={isEn ? "Account settings — delete account" : "계정 관리 — 회원 탈퇴"}
+              style={{ fontSize: 10.5, border: "none", cursor: "pointer", font: "inherit" }}>{userEmail}</button>
+          )}
           <button className="btn btn-secondary" onClick={onLogout} style={{ fontSize: 12.5, padding: "5px 11px" }}>{guest ? (isEn ? "Log In" : "로그인") : (isEn ? "Log Out" : "로그아웃")}</button>
         </div>
         <div style={{ height: 1, background: "linear-gradient(to right,transparent,rgba(233,233,237,.14) 48px,rgba(233,233,237,.14) calc(100% - 48px),transparent)" }} />
@@ -1540,7 +1532,7 @@ function AppScreen({ userEmail, userId, onLogout, lang, onToggleLang, navigate, 
 
       <div style={{ padding: "clamp(18px,3vw,34px) clamp(14px,3vw,26px) 80px", display: "flex", flexDirection: "column", gap: "clamp(28px,4vw,46px)" }}>
         {view === "history" ? (
-          <HistoryScreen history={history} onSelect={openHistoryRecord} lang={lang} onWithdraw={withdraw} />
+          <HistoryScreen history={history} onSelect={openHistoryRecord} lang={lang} />
         ) : (
           <>
             <section>
@@ -1566,6 +1558,55 @@ function AppScreen({ userEmail, userId, onLogout, lang, onToggleLang, navigate, 
         )}
         <Footer />
       </div>
+
+      {wdStep === "ask" && (
+        <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,.55)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 100, padding: 20 }}>
+          <div style={{ background: "#17233e", borderRadius: 14, padding: 22, maxWidth: 340, width: "100%", boxShadow: "0 0 0 1px #3f424d, 0 16px 40px rgba(0,0,0,.5)" }}>
+            <div style={{ fontSize: 15, fontWeight: 500, marginBottom: 8 }}>{isEn ? "Continue to account deletion?" : "탈퇴 절차를 진행하시겠습니까?"}</div>
+            <div style={{ fontSize: 12.5, color: "rgba(233,233,237,.6)", marginBottom: 20, lineHeight: 1.5 }}>
+              {isEn ? "You are about to start deleting your account." : "회원 탈퇴 절차를 시작합니다."}
+            </div>
+            <div style={{ display: "flex", gap: 8, justifyContent: "flex-end" }}>
+              <button className="btn btn-primary" onClick={() => setWdStep("confirm")} style={{ fontSize: 13, padding: "6px 14px" }}>
+                {isEn ? "Yes" : "예"}
+              </button>
+              <button className="btn btn-secondary" onClick={closeWithdraw} style={{ fontSize: 13, padding: "6px 14px" }}>
+                {isEn ? "No" : "아니오"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {wdStep === "confirm" && (
+        <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,.55)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 100, padding: 20 }}>
+          <div style={{ background: "#17233e", borderRadius: 14, padding: 22, maxWidth: 340, width: "100%", boxShadow: "0 0 0 1px #3f424d, 0 16px 40px rgba(0,0,0,.5)" }}>
+            <div style={{ fontSize: 15, fontWeight: 500, marginBottom: 8 }}>{isEn ? "Delete your account?" : "정말 탈퇴하시겠습니까?"}</div>
+            <div style={{ fontSize: 12.5, color: "rgba(233,233,237,.6)", marginBottom: 20, lineHeight: 1.5 }}>
+              {isEn ? "Your account and all saved history will be permanently deleted and you'll be signed out. This cannot be undone." : "계정과 저장된 기록이 모두 삭제되고 로그아웃됩니다. 이 작업은 되돌릴 수 없습니다."}
+            </div>
+            {wdNeedPw && (
+              <div className="field" style={{ marginBottom: 14 }}>
+                <label>{isEn ? "Password" : "비밀번호"}</label>
+                <input className="input" type="password" value={wdPw} autoFocus
+                  onChange={(e) => setWdPw(e.target.value)}
+                  onKeyDown={(e) => e.key === "Enter" && !wdBusy && wdPw && withdraw()}
+                  style={{ minHeight: 40 }} />
+              </div>
+            )}
+            {wdErr && <div style={{ marginBottom: 14, fontSize: 12, color: "#f0868b", lineHeight: 1.5 }}>{wdErr}</div>}
+            <div style={{ display: "flex", gap: 8, justifyContent: "flex-end" }}>
+              <button className="btn btn-secondary" disabled={wdBusy} onClick={closeWithdraw} style={{ fontSize: 13, padding: "6px 14px" }}>
+                {isEn ? "Cancel" : "취소"}
+              </button>
+              <button className="btn" disabled={wdBusy || (wdNeedPw && !wdPw)} onClick={withdraw}
+                style={{ fontSize: 13, padding: "6px 14px", color: "#fff", background: "#c23b3f", borderColor: "#c23b3f" }}>
+                {wdBusy ? (isEn ? "Deleting…" : "처리 중…") : (isEn ? "Delete Account" : "탈퇴")}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
