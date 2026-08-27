@@ -686,8 +686,9 @@ function LandingScreen({ navigate, lang, onToggleLang, onGuest }) {
 /* ============================================================
    11. 로그인 / 회원가입 / 비밀번호 재설정 화면
    ============================================================ */
-function AuthScreen({ mode, navigate, lang, onToggleLang }) {
+function AuthScreen({ mode, navigate, lang, onToggleLang, onGuest }) {
   const isEn = lang === "en";
+  const [guestAsk, setGuestAsk] = useState(false);
   const [email, setEmail] = useState("");
   const [pw, setPw] = useState("");
   const [pw2, setPw2] = useState("");
@@ -706,7 +707,7 @@ function AuthScreen({ mode, navigate, lang, onToggleLang }) {
         reset: "We'll send a reset link to your registered email address.",
       }
     : {
-        login: "실험 데이터의 검량선과 통계 분석을 한 화면에서 처리합니다.",
+        login: <>실험 데이터의 검량선과 통계 분석을<br />한 화면에서 처리합니다.</>,
         signup: "이메일과 비밀번호만으로 바로 시작할 수 있습니다.",
         reset: "가입한 이메일 주소로 재설정 링크를 보냅니다.",
       };
@@ -804,10 +805,42 @@ function AuthScreen({ mode, navigate, lang, onToggleLang }) {
           {err.form && <div style={{ padding: "11px 13px", borderRadius: 8, background: "#3a6a67", border: "1px solid rgba(171,252,247,.35)", fontSize: 12.5, color: "#f4fffe" }}>{err.form}</div>}
           {notice && <div style={{ padding: "11px 13px", borderRadius: 8, background: "#27413f", border: "1px solid rgba(171,252,247,.35)", fontSize: 12.5, color: "#cefdfa" }}>{notice}</div>}
 
-          <button className="btn btn-primary btn-block" disabled={busy} onClick={submit} style={{ minHeight: 42, fontSize: 14.5, marginTop: 4 }}>
-            {busy ? (isEn ? "Processing…" : "처리 중…") : ctas[mode]}
-          </button>
+          {mode === "login" ? (
+            <div style={{ display: "flex", gap: 10, marginTop: 4 }}>
+              <button className="btn btn-primary" disabled={busy} onClick={submit} style={{ flex: 1, minWidth: 0, minHeight: 42, fontSize: 14.5 }}>
+                {busy ? (isEn ? "Processing…" : "처리 중…") : ctas[mode]}
+              </button>
+              <button className="btn btn-secondary" disabled={busy} onClick={() => setGuestAsk(true)} style={{ flex: 1, minWidth: 0, minHeight: 42, fontSize: 14.5 }}>
+                {isEn ? "Guest" : "비회원"}
+              </button>
+            </div>
+          ) : (
+            <button className="btn btn-primary btn-block" disabled={busy} onClick={submit} style={{ minHeight: 42, fontSize: 14.5, marginTop: 4 }}>
+              {busy ? (isEn ? "Processing…" : "처리 중…") : ctas[mode]}
+            </button>
+          )}
         </div>
+
+        {guestAsk && (
+          <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,.55)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 100, padding: 20 }}>
+            <div style={{ background: "#17233e", borderRadius: 14, padding: 22, maxWidth: 360, width: "100%", boxShadow: "0 0 0 1px #3f424d, 0 16px 40px rgba(0,0,0,.5)" }}>
+              <div style={{ fontSize: 15, fontWeight: 500, marginBottom: 8 }}>{isEn ? "Continue without an account?" : "비회원으로 이용하시겠습니까?"}</div>
+              <div style={{ fontSize: 12.5, color: "rgba(233,233,237,.6)", marginBottom: 20, lineHeight: 1.5 }}>
+                {isEn
+                  ? "As a guest you cannot save or view analysis history. All other features work the same."
+                  : "비회원으로 이용하시면 분석 기록의 저장과 열람이 불가능합니다. 그 외 기능은 동일하게 사용하실 수 있습니다."}
+              </div>
+              <div style={{ display: "flex", gap: 8, justifyContent: "flex-end" }}>
+                <button className="btn btn-secondary" onClick={() => setGuestAsk(false)} style={{ fontSize: 13, padding: "6px 14px" }}>
+                  {isEn ? "No" : "아니오"}
+                </button>
+                <button className="btn btn-primary" onClick={() => { setGuestAsk(false); onGuest(); }} style={{ fontSize: 13, padding: "6px 14px" }}>
+                  {isEn ? "Yes" : "네"}
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
 
         <div style={{ height: 1, margin: "26px 0 18px", background: "linear-gradient(to right,transparent,rgba(233,233,237,.14) 40px,rgba(233,233,237,.14) calc(100% - 40px),transparent)" }} />
         <div style={{ display: "flex", flexWrap: "wrap", justifyContent: "center", gap: "6px 10px", fontSize: 12, color: "rgba(233,233,237,.5)" }}>
@@ -1585,7 +1618,7 @@ function App() {
     if (user) return null; // /app 으로 리다이렉트 중
     return <LandingScreen navigate={navigate} lang={lang} onToggleLang={toggleLang} onGuest={enterGuest} />;
   }
-  if (path === "/login") return <AuthScreen mode="login" navigate={navigate} lang={lang} onToggleLang={toggleLang} />;
+  if (path === "/login") return <AuthScreen mode="login" navigate={navigate} lang={lang} onToggleLang={toggleLang} onGuest={enterGuest} />;
   if (path === "/signup") return <AuthScreen mode="signup" navigate={navigate} lang={lang} onToggleLang={toggleLang} />;
   if (path === "/reset-password") return <AuthScreen mode="reset" navigate={navigate} lang={lang} onToggleLang={toggleLang} />;
   if (path === "/app") {
