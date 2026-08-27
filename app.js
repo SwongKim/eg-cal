@@ -1330,10 +1330,23 @@ function formatHistoryLabel(createdAt, memo) {
   const stamp = d.getFullYear() + "-" + p(d.getMonth() + 1) + "-" + p(d.getDate()) + " " + p(d.getHours()) + ":" + p(d.getMinutes());
   return memo && memo.trim() ? stamp + " : " + memo.trim() : stamp;
 }
-function HistoryScreen({ history, onSelect, lang }) {
+function HistoryScreen({ history, onSelect, lang, onWithdraw }) {
   const isEn = lang === "en";
   const limit = window.EgCalHistory ? window.EgCalHistory.HISTORY_LIMIT : 10;
   const slots = Array.from({ length: limit }, (_, i) => history[i] || null);
+  const [confirmOpen, setConfirmOpen] = useState(false);
+  const [busy, setBusy] = useState(false);
+
+  async function confirmWithdraw() {
+    setBusy(true);
+    try {
+      await onWithdraw();
+    } finally {
+      setBusy(false);
+      setConfirmOpen(false);
+    }
+  }
+
   return (
     <section>
       <span style={{ fontSize: 10, letterSpacing: ".1em", textTransform: "uppercase", color: "#84d9d3" }}>{isEn ? "History" : "기록 · History"}</span>
@@ -1360,6 +1373,31 @@ function HistoryScreen({ history, onSelect, lang }) {
           {isEn ? "⚠ You must enter your Firebase project settings in firebase-config.js and create a Firestore Database for history saving to work." : "⚠ firebase-config.js 에 Firebase 프로젝트 설정을 입력하고 Firestore Database 를 생성해야 기록 저장이 동작합니다."}
         </p>
       )}
+      <div style={{ marginTop: 22, display: "flex", justifyContent: "flex-end" }}>
+        <button className="btn btn-secondary" onClick={() => setConfirmOpen(true)}
+          style={{ fontSize: 12.5, padding: "5px 11px", color: "#f0868b", borderColor: "#7a3a3d" }}>
+          {isEn ? "Delete Account" : "탈퇴"}
+        </button>
+      </div>
+      {confirmOpen && (
+        <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,.55)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 100, padding: 20 }}>
+          <div style={{ background: "#17233e", borderRadius: 14, padding: 22, maxWidth: 340, width: "100%", boxShadow: "0 0 0 1px #3f424d, 0 16px 40px rgba(0,0,0,.5)" }}>
+            <div style={{ fontSize: 15, fontWeight: 500, marginBottom: 8 }}>{isEn ? "Delete your account?" : "정말 탈퇴하시겠습니까?"}</div>
+            <div style={{ fontSize: 12.5, color: "rgba(233,233,237,.6)", marginBottom: 20, lineHeight: 1.5 }}>
+              {isEn ? "Your saved history will be permanently deleted and you'll be signed out. This cannot be undone." : "저장된 기록이 모두 삭제되고 로그아웃됩니다. 이 작업은 되돌릴 수 없습니다."}
+            </div>
+            <div style={{ display: "flex", gap: 8, justifyContent: "flex-end" }}>
+              <button className="btn btn-secondary" disabled={busy} onClick={() => setConfirmOpen(false)} style={{ fontSize: 13, padding: "6px 14px" }}>
+                {isEn ? "Cancel" : "취소"}
+              </button>
+              <button className="btn" disabled={busy} onClick={confirmWithdraw}
+                style={{ fontSize: 13, padding: "6px 14px", color: "#fff", background: "#c23b3f", borderColor: "#c23b3f" }}>
+                {busy ? (isEn ? "Deleting…" : "처리 중…") : (isEn ? "Delete Account" : "탈퇴")}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </section>
   );
 }
@@ -1367,7 +1405,7 @@ function HistoryScreen({ history, onSelect, lang }) {
 /* ============================================================
    16. 메인 도구 페이지 (/app)
    ============================================================ */
-function AppScreen({ userEmail, userId, onLogout, lang, onToggleLang }) {
+function AppScreen({ userEmail, userId, onLogout, lang, onToggleLang, navigate }) {
   const isEn = lang === "en";
   const [view, setView] = useState("main"); // main | history
   const [rows, setRows] = useState(sampleRows());
@@ -1408,6 +1446,14 @@ function AppScreen({ userEmail, userId, onLogout, lang, onToggleLang }) {
     setView("main");
   }
 
+  async function withdraw() {
+    if (userId && window.EgCalHistory && window.EgCalHistory.deleteAll) {
+      await window.EgCalHistory.deleteAll(userId);
+    }
+    await window.EgCalAuth.logout();
+    navigate("/");
+  }
+
   return (
     <div style={{ animation: "noct-in .28s ease" }}>
       <div style={{ position: "sticky", top: 0, zIndex: 20, background: "#11192c" }}>
@@ -1425,7 +1471,7 @@ function AppScreen({ userEmail, userId, onLogout, lang, onToggleLang }) {
 
       <div style={{ padding: "clamp(18px,3vw,34px) clamp(14px,3vw,26px) 80px", display: "flex", flexDirection: "column", gap: "clamp(28px,4vw,46px)" }}>
         {view === "history" ? (
-          <HistoryScreen history={history} onSelect={openHistoryRecord} lang={lang} />
+          <HistoryScreen history={history} onSelect={openHistoryRecord} lang={lang} onWithdraw={withdraw} />
         ) : (
           <>
             <section>
@@ -1503,7 +1549,7 @@ function App() {
   if (path === "/reset-password") return <AuthScreen mode="reset" navigate={navigate} lang={lang} onToggleLang={toggleLang} />;
   if (path === "/app") {
     if (!user) return null;
-    return <AppScreen userEmail={user.email} userId={user.uid} onLogout={() => window.EgCalAuth.logout()} lang={lang} onToggleLang={toggleLang} />;
+    return <AppScreen userEmail={user.email} userId={user.uid} onLogout={() => window.EgCalAuth.logout()} lang={lang} onToggleLang={toggleLang} navigate={navigate} />;
   }
   return <NotFoundScreen loggedIn={!!user} navigate={navigate} lang={lang} />;
 }

@@ -92,6 +92,12 @@ window.EgCalHistory = {
     const ref = await addDoc(collection(db, "users", uid, "history"), record);
     return { id: ref.id, ...record };
   },
+  async deleteAll(uid) {
+    if (!uid) return;
+    const col = collection(db, "users", uid, "history");
+    const snap = await getDocs(col);
+    await Promise.all(snap.docs.map((d) => deleteDoc(doc(db, "users", uid, "history", d.id))));
+  },
 };
 
 window.dispatchEvent(new Event("egcal-auth-ready"));
