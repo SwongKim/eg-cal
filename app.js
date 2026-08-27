@@ -553,6 +553,8 @@ function authErrorMessage(err, lang) {
 /* ============================================================
    8. 라우터 — /login /signup /reset-password /app /* (Sitemap.md)
    ============================================================ */
+const GUEST_KEY = "egcal-guest";
+
 function useRouter() {
   const [path, setPath] = useState(window.location.pathname);
   useEffect(() => {
@@ -616,8 +618,9 @@ function LangToggle({ lang, onToggle }) {
 /* ============================================================
    10. 랜딩 페이지 (/)
    ============================================================ */
-function LandingScreen({ navigate, lang, onToggleLang }) {
+function LandingScreen({ navigate, lang, onToggleLang, onGuest }) {
   const isEn = lang === "en";
+  const [guestAsk, setGuestAsk] = useState(false);
   const features = isEn ? [
     { k: "Engineering Calculator", v: "Standard engineering functions — trigonometry, log/exponent, powers, memory — by mouse or keyboard." },
     { k: "Regression & Statistics", v: "Enter calibration curve data to get the regression equation, LOD/LOQ, confidence intervals, ANOVA, and charts at once." },
@@ -644,7 +647,28 @@ function LandingScreen({ navigate, lang, onToggleLang }) {
         <div style={{ display: "flex", gap: 10, flexWrap: "wrap", marginBottom: 44 }}>
           <button className="btn btn-primary" onClick={() => navigate("/login")} style={{ minHeight: 42, padding: "0 22px", fontSize: 14.5 }}>{isEn ? "Log In" : "로그인"}</button>
           <button className="btn btn-secondary" onClick={() => navigate("/signup")} style={{ minHeight: 42, padding: "0 22px", fontSize: 14.5 }}>{isEn ? "Sign Up" : "회원가입"}</button>
+          <button className="btn btn-secondary" onClick={() => setGuestAsk(true)} style={{ minHeight: 42, padding: "0 22px", fontSize: 14.5 }}>{isEn ? "Continue as Guest" : "비회원"}</button>
         </div>
+        {guestAsk && (
+          <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,.55)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 100, padding: 20 }}>
+            <div style={{ background: "#17233e", borderRadius: 14, padding: 22, maxWidth: 360, width: "100%", boxShadow: "0 0 0 1px #3f424d, 0 16px 40px rgba(0,0,0,.5)" }}>
+              <div style={{ fontSize: 15, fontWeight: 500, marginBottom: 8 }}>{isEn ? "Continue without an account?" : "비회원으로 이용하시겠습니까?"}</div>
+              <div style={{ fontSize: 12.5, color: "rgba(233,233,237,.6)", marginBottom: 20, lineHeight: 1.5 }}>
+                {isEn
+                  ? "As a guest you cannot save or view analysis history. All other features work the same."
+                  : "비회원으로 이용하시면 분석 기록의 저장과 열람이 불가능합니다. 그 외 기능은 동일하게 사용하실 수 있습니다."}
+              </div>
+              <div style={{ display: "flex", gap: 8, justifyContent: "flex-end" }}>
+                <button className="btn btn-secondary" onClick={() => setGuestAsk(false)} style={{ fontSize: 13, padding: "6px 14px" }}>
+                  {isEn ? "No" : "아니오"}
+                </button>
+                <button className="btn btn-primary" onClick={() => { setGuestAsk(false); onGuest(); }} style={{ fontSize: 13, padding: "6px 14px" }}>
+                  {isEn ? "Yes" : "네"}
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(160px,1fr))", gap: 14 }}>
           {features.map((f, i) => (
             <div key={i} style={{ background: "#17233e", borderRadius: 14, padding: "16px 17px", boxShadow: "0 0 0 1px #3f424d" }}>
@@ -1406,7 +1430,7 @@ function HistoryScreen({ history, onSelect, lang, onWithdraw }) {
 /* ============================================================
    16. 메인 도구 페이지 (/app)
    ============================================================ */
-function AppScreen({ userEmail, userId, onLogout, lang, onToggleLang, navigate }) {
+function AppScreen({ userEmail, userId, onLogout, lang, onToggleLang, navigate, guest }) {
   const isEn = lang === "en";
   const [view, setView] = useState("main"); // main | history
   const [rows, setRows] = useState(sampleRows());
@@ -1463,9 +1487,11 @@ function AppScreen({ userEmail, userId, onLogout, lang, onToggleLang, navigate }
             <Logo /><span style={{ fontSize: 15, fontWeight: 500 }}>{isEn ? "Eg-Cal: Engineering Calculation Assistant" : "Eg-Cal : 공학용 연산 도우미"}</span>
           </button>
           <LangToggle lang={lang} onToggle={onToggleLang} />
-          <button className="btn btn-secondary" onClick={() => setView("history")} style={{ fontSize: 12.5, padding: "5px 11px" }}>{isEn ? "History" : "기록"}</button>
-          <span className="tag tag-neutral" style={{ fontSize: 10.5 }}>{userEmail}</span>
-          <button className="btn btn-secondary" onClick={onLogout} style={{ fontSize: 12.5, padding: "5px 11px" }}>{isEn ? "Log Out" : "로그아웃"}</button>
+          <button className="btn btn-secondary" disabled={guest} onClick={() => setView("history")}
+            title={guest ? (isEn ? "Sign in to save and view history" : "기록 저장·열람은 로그인 후 이용할 수 있습니다") : undefined}
+            style={{ fontSize: 12.5, padding: "5px 11px", cursor: guest ? "not-allowed" : undefined }}>{isEn ? "History" : "기록"}</button>
+          <span className="tag tag-neutral" style={{ fontSize: 10.5 }}>{guest ? (isEn ? "Guest" : "비회원") : userEmail}</span>
+          <button className="btn btn-secondary" onClick={onLogout} style={{ fontSize: 12.5, padding: "5px 11px" }}>{guest ? (isEn ? "Log In" : "로그인") : (isEn ? "Log Out" : "로그아웃")}</button>
         </div>
         <div style={{ height: 1, background: "linear-gradient(to right,transparent,rgba(233,233,237,.14) 48px,rgba(233,233,237,.14) calc(100% - 48px),transparent)" }} />
       </div>
@@ -1492,7 +1518,7 @@ function AppScreen({ userEmail, userId, onLogout, lang, onToggleLang, navigate }
             <section>
               <span style={{ fontSize: 10, letterSpacing: ".1em", textTransform: "uppercase", color: "#84d9d3" }}>03 · Results</span>
               <h3 style={{ fontSize: "clamp(20px,2.4vw,25px)", margin: "2px 0 6px" }}>{isEn ? "Results" : "산출 결과"}</h3>
-              <ResultsPanel result={result} tableWarn={tableWarn} emptyMsg={emptyMsg} logX={logX} setLogX={setLogX} logY={logY} setLogY={setLogY} onSave={saveCurrentResult} memo={memo} setMemo={setMemo} lang={lang} />
+              <ResultsPanel result={result} tableWarn={tableWarn} emptyMsg={emptyMsg} logX={logX} setLogX={setLogX} logY={logY} setLogY={setLogY} onSave={guest ? null : saveCurrentResult} memo={memo} setMemo={setMemo} lang={lang} />
             </section>
           </>
         )}
@@ -1529,13 +1555,27 @@ function App() {
   const { path, navigate } = useRouter();
   const { authLoading, user } = useAuth();
   const [lang, toggleLang] = useLang();
+  const [guest, setGuest] = useState(() => {
+    try { return sessionStorage.getItem(GUEST_KEY) === "1"; } catch (e) { return false; }
+  });
+  const enterGuest = useCallback(() => {
+    try { sessionStorage.setItem(GUEST_KEY, "1"); } catch (e) {}
+    setGuest(true);
+    navigate("/app");
+  }, [navigate]);
+  const exitGuest = useCallback(() => {
+    try { sessionStorage.removeItem(GUEST_KEY); } catch (e) {}
+    setGuest(false);
+  }, []);
+
+  useEffect(() => { if (user) exitGuest(); }, [user, exitGuest]);
 
   useEffect(() => {
     if (authLoading) return;
     if (path === "/" && user) { navigate("/app"); return; }
-    if (path === "/app" && !user) { navigate("/login"); return; }
+    if (path === "/app" && !user && !guest) { navigate("/login"); return; }
     if ((path === "/login" || path === "/signup" || path === "/reset-password") && user) { navigate("/app"); return; }
-  }, [path, user, authLoading, navigate]);
+  }, [path, user, guest, authLoading, navigate]);
 
   if (authLoading) {
     return <div style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", color: "rgba(233,233,237,.5)", fontSize: 13 }}>{lang === "en" ? "Loading…" : "불러오는 중…"}</div>;
@@ -1543,14 +1583,17 @@ function App() {
 
   if (path === "/") {
     if (user) return null; // /app 으로 리다이렉트 중
-    return <LandingScreen navigate={navigate} lang={lang} onToggleLang={toggleLang} />;
+    return <LandingScreen navigate={navigate} lang={lang} onToggleLang={toggleLang} onGuest={enterGuest} />;
   }
   if (path === "/login") return <AuthScreen mode="login" navigate={navigate} lang={lang} onToggleLang={toggleLang} />;
   if (path === "/signup") return <AuthScreen mode="signup" navigate={navigate} lang={lang} onToggleLang={toggleLang} />;
   if (path === "/reset-password") return <AuthScreen mode="reset" navigate={navigate} lang={lang} onToggleLang={toggleLang} />;
   if (path === "/app") {
+    if (!user && guest) {
+      return <AppScreen userEmail="" userId={null} onLogout={() => { exitGuest(); navigate("/"); }} lang={lang} onToggleLang={toggleLang} navigate={navigate} guest />;
+    }
     if (!user) return null;
-    return <AppScreen userEmail={user.email} userId={user.uid} onLogout={() => window.EgCalAuth.logout()} lang={lang} onToggleLang={toggleLang} navigate={navigate} />;
+    return <AppScreen userEmail={user.email} userId={user.uid} onLogout={() => window.EgCalAuth.logout()} lang={lang} onToggleLang={toggleLang} navigate={navigate} guest={false} />;
   }
   return <NotFoundScreen loggedIn={!!user} navigate={navigate} lang={lang} />;
 }
