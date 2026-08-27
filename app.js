@@ -1465,6 +1465,7 @@ function HistoryScreen({ history, onSelect, lang, onWithdraw }) {
    ============================================================ */
 function AppScreen({ userEmail, userId, onLogout, lang, onToggleLang, navigate, guest }) {
   const isEn = lang === "en";
+  const brandLabel = isEn ? "Eg-Cal: Engineering Calculation Assistant" : "Eg-Cal : 공학용 연산 도우미";
   const [view, setView] = useState("main"); // main | history
   const [rows, setRows] = useState(sampleRows());
   const [result, setResult] = useState(null);
@@ -1516,13 +1517,21 @@ function AppScreen({ userEmail, userId, onLogout, lang, onToggleLang, navigate, 
     <div style={{ animation: "noct-in .28s ease" }}>
       <div style={{ position: "sticky", top: 0, zIndex: 20, background: "#11192c" }}>
         <div style={{ display: "flex", alignItems: "center", gap: 12, flexWrap: "wrap", padding: "12px clamp(14px,3vw,26px)" }}>
-          <button className="btn" onClick={() => (guest ? navigate("/") : setView("main"))} style={{ display: "flex", alignItems: "center", gap: 8, marginRight: "auto", padding: 0, color: "#e9e9ed" }}>
-            <Logo /><span style={{ fontSize: 15, fontWeight: 500 }}>{isEn ? "Eg-Cal: Engineering Calculation Assistant" : "Eg-Cal : 공학용 연산 도우미"}</span>
-          </button>
+          {guest ? (
+            <button className="btn" onClick={() => navigate("/")} style={{ display: "flex", alignItems: "center", gap: 8, marginRight: "auto", padding: 0, color: "#e9e9ed" }}>
+              <Logo /><span style={{ fontSize: 15, fontWeight: 500 }}>{brandLabel}</span>
+            </button>
+          ) : (
+            <div style={{ display: "flex", alignItems: "center", gap: 8, marginRight: "auto", color: "#e9e9ed", userSelect: "none" }}>
+              <Logo /><span style={{ fontSize: 15, fontWeight: 500 }}>{brandLabel}</span>
+            </div>
+          )}
           <LangToggle lang={lang} onToggle={onToggleLang} />
-          <button className="btn btn-secondary" disabled={guest} onClick={() => setView("history")}
+          <button className="btn btn-secondary" disabled={guest} onClick={() => setView(view === "history" ? "main" : "history")}
             title={guest ? (isEn ? "Sign in to save and view history" : "기록 저장·열람은 로그인 후 이용할 수 있습니다") : undefined}
-            style={{ fontSize: 12.5, padding: "5px 11px", cursor: guest ? "not-allowed" : undefined }}>{isEn ? "History" : "기록"}</button>
+            style={{ fontSize: 12.5, padding: "5px 11px", cursor: guest ? "not-allowed" : undefined }}>
+            {view === "history" ? (isEn ? "Main" : "메인") : (isEn ? "History" : "기록")}
+          </button>
           <span className="tag tag-neutral" style={{ fontSize: 10.5 }}>{guest ? (isEn ? "Guest" : "비회원") : userEmail}</span>
           <button className="btn btn-secondary" onClick={onLogout} style={{ fontSize: 12.5, padding: "5px 11px" }}>{guest ? (isEn ? "Log In" : "로그인") : (isEn ? "Log Out" : "로그아웃")}</button>
         </div>
