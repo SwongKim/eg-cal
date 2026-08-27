@@ -638,7 +638,7 @@ function LandingScreen({ navigate, lang, onToggleLang, onGuest }) {
           <span style={{ fontSize: 15, fontWeight: 500, letterSpacing: "-.01em" }}>{isEn ? "Eg-Cal: Engineering Calculation Assistant" : "Eg-Cal : 공학용 연산 도우미"}</span>
           <LangToggle lang={lang} onToggle={onToggleLang} />
         </div>
-        <h1 style={{ fontSize: "clamp(28px,4vw,42px)", margin: "0 0 14px", maxWidth: "18ch" }}>{isEn ? "Calculations and statistical analysis, all in one screen." : "계산과 통계 분석을 한 화면에서."}</h1>
+        <h1 style={{ fontSize: "clamp(28px,4vw,42px)", margin: "0 0 14px", maxWidth: isEn ? "18ch" : "none" }}>{isEn ? "Calculations and statistical analysis, all in one screen." : <>계산과 통계 분석을<br />한 화면에서.</>}</h1>
         <p style={{ fontSize: 14.5, color: "rgba(233,233,237,.6)", margin: "0 0 30px", maxWidth: "50ch", lineHeight: 1.6 }}>
           {isEn
             ? "Enter your calibration curve data and press Confirm — get the regression equation, statistics, and charts instantly. No more switching between a calculator and an analysis tool; do it all on one page."
@@ -843,9 +843,9 @@ function AuthScreen({ mode, navigate, lang, onToggleLang, onGuest }) {
         )}
 
         <div style={{ height: 1, margin: "26px 0 18px", background: "linear-gradient(to right,transparent,rgba(233,233,237,.14) 40px,rgba(233,233,237,.14) calc(100% - 40px),transparent)" }} />
-        <div style={{ display: "flex", flexWrap: "wrap", justifyContent: "center", gap: "6px 10px", fontSize: 12, color: "rgba(233,233,237,.5)" }}>
+        <div style={{ display: "flex", flexWrap: "nowrap", justifyContent: "center", alignItems: "baseline", gap: 8, fontSize: 12, color: "rgba(233,233,237,.5)" }}>
           {links.map((l, i) => (
-            <span key={i} style={{ display: "flex", gap: 6, alignItems: "baseline" }}>
+            <span key={i} style={{ display: "flex", gap: 5, alignItems: "baseline", whiteSpace: "nowrap" }}>
               {l.pre}
               <button className="btn btn-ghost" onClick={() => navigate(l.to)} style={{ fontSize: 12, padding: 0, color: l.to === "/reset-password" ? "#e9e9ed" : undefined }}>{l.label}</button>
             </span>
@@ -1516,7 +1516,7 @@ function AppScreen({ userEmail, userId, onLogout, lang, onToggleLang, navigate, 
     <div style={{ animation: "noct-in .28s ease" }}>
       <div style={{ position: "sticky", top: 0, zIndex: 20, background: "#11192c" }}>
         <div style={{ display: "flex", alignItems: "center", gap: 12, flexWrap: "wrap", padding: "12px clamp(14px,3vw,26px)" }}>
-          <button className="btn" onClick={() => setView("main")} style={{ display: "flex", alignItems: "center", gap: 8, marginRight: "auto", padding: 0, color: "#e9e9ed" }}>
+          <button className="btn" onClick={() => (guest ? navigate("/") : setView("main"))} style={{ display: "flex", alignItems: "center", gap: 8, marginRight: "auto", padding: 0, color: "#e9e9ed" }}>
             <Logo /><span style={{ fontSize: 15, fontWeight: 500 }}>{isEn ? "Eg-Cal: Engineering Calculation Assistant" : "Eg-Cal : 공학용 연산 도우미"}</span>
           </button>
           <LangToggle lang={lang} onToggle={onToggleLang} />
@@ -1537,14 +1537,14 @@ function AppScreen({ userEmail, userId, onLogout, lang, onToggleLang, navigate, 
             <section>
               <span style={{ fontSize: 10, letterSpacing: ".1em", textTransform: "uppercase", color: "#84d9d3" }}>01 · Calculator</span>
               <h3 style={{ fontSize: "clamp(20px,2.4vw,25px)", margin: "0 0 6px" }}>{isEn ? "Engineering Calculator" : "공학용 계산기"}</h3>
-              <p style={{ fontSize: 13, color: "rgba(233,233,237,.55)", margin: "0 0 18px", maxWidth: "56ch" }}>{isEn ? "Supports both mouse clicks and keyboard input. Enter the calculation result directly into the table below." : "마우스 클릭과 키보드 입력을 함께 지원합니다. 계산 결과는 아래 표에 직접 입력하세요."}</p>
+              <p style={{ fontSize: 13, color: "rgba(233,233,237,.55)", margin: "0 0 18px", maxWidth: "56ch" }}>{isEn ? "Supports both mouse clicks and keyboard input. Enter the calculation result directly into the table below." : <>마우스 클릭과 키보드 입력을 함께 지원합니다.<br />계산 결과는 아래 표에 직접 입력하세요.</>}</p>
               <Calculator lang={lang} />
             </section>
 
             <section>
               <span style={{ fontSize: 10, letterSpacing: ".1em", textTransform: "uppercase", color: "#84d9d3" }}>02 · Data input</span>
               <h3 style={{ fontSize: "clamp(20px,2.4vw,25px)", margin: "2px 0 6px" }}>{isEn ? "Data Input" : "데이터 입력"}</h3>
-              <p style={{ fontSize: 13, color: "rgba(233,233,237,.55)", margin: "0 0 16px", maxWidth: "60ch" }}>{isEn ? "A two-column X (factor) / Y (response) layout. Paste multiple rows copied from Excel directly into the cells — rows are added automatically if needed. Use Tab/Enter to move between cells." : "X(인자) · Y(반응) 2열 구조입니다. 엑셀에서 복사한 여러 행을 셀에 바로 붙여넣을 수 있고, 행이 부족하면 자동으로 추가됩니다. Tab · Enter 로 셀 사이를 이동합니다."}</p>
+              <p style={{ fontSize: 13, color: "rgba(233,233,237,.55)", margin: "0 0 16px", maxWidth: isEn ? "60ch" : "none" }}>{isEn ? "A two-column X (factor) / Y (response) layout. Paste multiple rows copied from Excel directly into the cells — rows are added automatically if needed. Use Tab/Enter to move between cells." : <>X(인자) · Y(반응) 2열 구조입니다. 엑셀에서 복사한 여러 행을 셀에 바로 붙여넣을 수 있고,<br />행이 부족하면 자동으로 추가됩니다. Tab · Enter 로 셀 사이를 이동합니다.</>}</p>
               <DataTable rows={rows} setRows={setRows} tableWarn={tableWarn} onCompute={() => compute()} lang={lang} />
             </section>
 
