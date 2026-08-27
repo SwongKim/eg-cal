@@ -880,6 +880,19 @@ function Footer() {
 /* ============================================================
    12. 계산기
    ============================================================ */
+// 닫히지 않은 여는 괄호만큼 뒤에 ")" 를 붙여준다. 시중 계산기처럼
+// "sin(30" 상태에서 = 를 눌러도 "sin(30)" 으로 계산되도록 하기 위한 처리.
+function closeParens(src) {
+  let depth = 0;
+  for (const ch of src) {
+    if (ch === "(") depth++;
+    else if (ch === ")") depth = Math.max(0, depth - 1);
+  }
+  return depth > 0 ? src + ")".repeat(depth) : src;
+}
+
+const CALC_HISTORY_LIMIT = 20;
+
 function Calculator({ lang }) {
   const isEn = lang === "en";
   const [expr, setExpr] = useState("");
@@ -887,21 +900,53 @@ function Calculator({ lang }) {
   const [err, setErr] = useState(false);
   const [mem, setMem] = useState(0);
   const [deg, setDeg] = useState(true);
+  const [hist, setHist] = useState([]); // 최신순 [{ expr, out }]
+  const [histIdx, setHistIdx] = useState(-1); // -1 = 이력을 보고 있지 않음
 
-  const push = useCallback((s) => setExpr((e) => e + s), []);
-  const back = useCallback(() => setExpr((e) => e.slice(0, -1)), []);
+  const push = useCallback((s) => { setHistIdx(-1); setExpr((e) => e + s); }, []);
+  const back = useCallback(() => { setHistIdx(-1); setExpr((e) => e.slice(0, -1)); }, []);
+
   const evaluate = useCallback(() => {
-    setExpr((cur) => {
-      const src = cur.trim();
-      if (!src) return cur;
-      try {
-        const v = parseExpr(src, deg);
-        if (!isFinite(v)) throw new Error("range");
-        setOut(trimNum(v)); setErr(false);
-      } catch (e) { setOut(isEn ? "Error" : "오류"); setErr(true); }
-      return cur;
+    const src = expr.trim();
+    if (!src) return;
+    const closed = closeParens(src);
+    try {
+      const v = parseExpr(closed, deg);
+      if (!isFinite(v)) throw new Error("range");
+      const val = trimNum(v);
+      setExpr(closed); setOut(val); setErr(false);
+      setHist((h) => (h[0] && h[0].expr === closed ? h : [{ expr: closed, out: val }].concat(h).slice(0, CALC_HISTORY_LIMIT)));
+      setHistIdx(-1);
+    } catch (e) {
+      setOut(isEn ? "Error" : "오류"); setErr(true);
+    }
+  }, [expr, deg, isEn]);
+
+  // 이력 되돌리기: 누를 때마다 한 칸씩 더 과거의 식을 입력창으로 불러온다.
+  const recallPrev = useCallback(() => {
+    setHist((h) => {
+      if (!h.length) return h;
+      setHistIdx((i) => {
+        const next = Math.min(i + 1, h.length - 1);
+        setExpr(h[next].expr); setOut(h[next].out); setErr(false);
+        return next;
+      });
+      return h;
     });
-  }, [deg, isEn]);
+  }, []);
+
+  // 되돌린 뒤 다시 최근 쪽으로. 가장 최근을 지나면 입력창을 비운다.
+  const recallNext = useCallback(() => {
+    setHist((h) => {
+      setHistIdx((i) => {
+        if (i <= 0) { setExpr(""); setOut("0"); setErr(false); return -1; }
+        const next = i - 1;
+        setExpr(h[next].expr); setOut(h[next].out); setErr(false);
+        return next;
+      });
+      return h;
+    });
+  }, []);
 
   useEffect(() => {
     const onKey = (e) => {
@@ -912,13 +957,15 @@ function Calculator({ lang }) {
       else if (["+", "-", "*", "/", "^", "(", ")"].includes(k)) push(k);
       else if (k === "Enter" || k === "=") evaluate();
       else if (k === "Backspace") back();
-      else if (k === "Escape") { setExpr(""); setOut("0"); setErr(false); }
+      else if (k === "ArrowUp") recallPrev();
+      else if (k === "ArrowDown") recallNext();
+      else if (k === "Escape") { setExpr(""); setOut("0"); setErr(false); setHistIdx(-1); }
       else return;
       e.preventDefault();
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [push, back, evaluate]);
+  }, [push, back, evaluate, recallPrev, recallNext]);
 
   function memOp(op) {
     if (op === "c") { setMem(0); return; }
@@ -929,7 +976,7 @@ function Calculator({ lang }) {
   }
 
   const numDefs = [
-    ["C", () => { setExpr(""); setOut("0"); setErr(false); }, "util", "14px"],
+    ["C", () => { setExpr(""); setOut("0"); setErr(false); setHistIdx(-1); }, "util", "14px"],
     ["⌫", back, "util", "15px"], ["(", () => push("("), "op"], [")", () => push(")"), "op"],
     ["7", () => push("7"), "num"], ["8", () => push("8"), "num"], ["9", () => push("9"), "num"], ["÷", () => push("/"), "op", "17px"],
     ["4", () => push("4"), "num"], ["5", () => push("5"), "num"], ["6", () => push("6"), "num"], ["×", () => push("*"), "op", "17px"],
@@ -957,6 +1004,11 @@ function Calculator({ lang }) {
       <div style={{ flex: "1 1 300px", minWidth: 280, background: "#17233e", borderRadius: 14, padding: 14, boxShadow: "0 0 0 1px #3f424d" }}>
         <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 10 }}>
           <button className="btn" onClick={() => setDeg((d) => !d)} style={{ fontSize: 11, padding: "3px 9px", borderColor: "#84d9d3", color: "#84d9d3" }}>{deg ? "DEG" : "RAD"}</button>
+          <button className="btn" disabled={!hist.length} onClick={recallPrev}
+            title={isEn ? "Recall the previous expression (↑)" : "이전 계산식 불러오기 (↑)"}
+            style={{ fontSize: 11, padding: "3px 9px", borderColor: "rgba(233,233,237,.16)", color: "rgba(233,233,237,.7)", cursor: hist.length ? "pointer" : "not-allowed" }}>
+            {isEn ? "↺ Prev" : "↺ 이전식"}
+          </button>
           {mem !== 0 && <span className="tag tag-accent" style={{ fontSize: 10 }}>M {trimNum(mem)}</span>}
           <span style={{ marginLeft: "auto", fontSize: 11, color: "rgba(233,233,237,.4)" }}>{isEn ? "Keyboard input supported" : "키보드 입력 가능"}</span>
         </div>
@@ -977,8 +1029,8 @@ function Calculator({ lang }) {
         </div>
         <div style={{ marginTop: 12, fontSize: 11.5, lineHeight: 1.7, color: "rgba(233,233,237,.45)" }}>
           {isEn
-            ? <>Keyboard&nbsp;0-9 . + - * / ^ ( )&nbsp;· Enter to calculate · Backspace to delete · Esc to reset</>
-            : <>키보드 &nbsp;0-9 . + - * / ^ ( ) &nbsp;· Enter 계산 · Backspace 지우기 · Esc 초기화</>}
+            ? <>Keyboard&nbsp;0-9 . + - * / ^ ( )&nbsp;· Enter to calculate · Backspace to delete · Esc to reset · ↑ / ↓ to browse past expressions<br />An unclosed "(" is closed automatically when you press =.</>
+            : <>키보드 &nbsp;0-9 . + - * / ^ ( ) &nbsp;· Enter 계산 · Backspace 지우기 · Esc 초기화 · ↑ / ↓ 이전 계산식<br />닫지 않은 "(" 는 = 를 누를 때 자동으로 닫힙니다.</>}
         </div>
       </div>
     </div>
