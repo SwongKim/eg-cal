@@ -1479,7 +1479,7 @@ function HistoryScreen({ history, onSelect, lang }) {
    16. 메인 도구 페이지 (/app)
    ============================================================ */
 const ADMIN_EMAIL = "mercury225@naver.com";
-const ADMIN_DOC_PATH = "file:///C:/Users/rnfnr/Downloads/NewMD/과제3/대학생 대상 생성형 AI 활용법 상세 교안 및 수업 자료.html";
+const ADMIN_DOC_PATH = "/lecture/대학생 대상 생성형 AI 활용법 상세 교안 및 수업 자료.html";
 function AppScreen({ userEmail, userId, onLogout, lang, onToggleLang, navigate, guest }) {
   const isEn = lang === "en";
   const brandLabel = isEn ? "Eg-Cal: Engineering Calculation Assistant" : "Eg-Cal : 공학용 연산 도우미";
