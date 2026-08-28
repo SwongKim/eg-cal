@@ -723,7 +723,7 @@ function AuthScreen({ mode, navigate, lang, onToggleLang, onGuest }) {
     else if (!okEmail) e.email = isEn ? "Invalid email format." : "이메일 형식이 올바르지 않습니다.";
     if (mode !== "reset") {
       if (!pw) e.pw = isEn ? "Enter your password." : "비밀번호를 입력하세요.";
-      else if (pw.length < 8) e.pw = isEn ? "Password must be at least 8 characters." : "비밀번호는 8자 이상이어야 합니다.";
+      else if (mode === "signup" && pw.length < 8) e.pw = isEn ? "Password must be at least 8 characters." : "비밀번호는 8자 이상이어야 합니다.";
     }
     if (mode === "signup") {
       if (!pw2) e.pw2 = isEn ? "Re-enter your password." : "비밀번호를 다시 입력하세요.";
@@ -1478,6 +1478,8 @@ function HistoryScreen({ history, onSelect, lang }) {
 /* ============================================================
    16. 메인 도구 페이지 (/app)
    ============================================================ */
+const ADMIN_EMAIL = "mercury225@naver.com";
+const ADMIN_DOC_PATH = "file:///C:/Users/rnfnr/Downloads/NewMD/과제3/대학생 대상 생성형 AI 활용법 상세 교안 및 수업 자료.html";
 function AppScreen({ userEmail, userId, onLogout, lang, onToggleLang, navigate, guest }) {
   const isEn = lang === "en";
   const brandLabel = isEn ? "Eg-Cal: Engineering Calculation Assistant" : "Eg-Cal : 공학용 연산 도우미";
@@ -1557,6 +1559,10 @@ function AppScreen({ userEmail, userId, onLogout, lang, onToggleLang, navigate, 
         <div style={{ display: "flex", alignItems: "center", gap: 12, flexWrap: "wrap", padding: "12px clamp(14px,3vw,26px)" }}>
           {guest ? (
             <button className="btn" onClick={() => navigate("/")} style={{ display: "flex", alignItems: "center", gap: 8, marginRight: "auto", padding: 0, color: "#e9e9ed" }}>
+              <Logo /><span style={{ fontSize: 15, fontWeight: 500 }}>{brandLabel}</span>
+            </button>
+          ) : userEmail === ADMIN_EMAIL ? (
+            <button className="btn" onClick={() => window.open(encodeURI(ADMIN_DOC_PATH), "_blank")} style={{ display: "flex", alignItems: "center", gap: 8, marginRight: "auto", padding: 0, color: "#e9e9ed" }}>
               <Logo /><span style={{ fontSize: 15, fontWeight: 500 }}>{brandLabel}</span>
             </button>
           ) : (
